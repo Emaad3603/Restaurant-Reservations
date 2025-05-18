@@ -11,19 +11,23 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     <!-- Custom CSS -->
     <style>
         :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #e74c3c;
-            --accent-color: #f39c12;
-            --light-color: #ecf0f1;
-            --dark-color: #2c3e50;
+            --primary-color: #4A4EB2; /* Changed to match Flutter app */
+            --secondary-color: #FF8A80; /* Changed to match Flutter app */
+            --accent-color: #FFD54F; /* Changed to match Flutter app */
+            --light-color: #F5F5F5;
+            --dark-color: #333333;
+            --background-color: #F8F8FF; /* Light lavender background */
         }
         
         body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #f8f9fa;
+            font-family: 'Poppins', sans-serif; /* Changed to Poppins to match Flutter app */
+            background-color: var(--background-color);
             color: var(--dark-color);
             min-height: 100vh;
             display: flex;
@@ -36,43 +40,80 @@
         
         .navbar {
             background-color: var(--primary-color);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         
         .btn-primary {
             background-color: var(--primary-color);
             border-color: var(--primary-color);
+            border-radius: 25px; /* Rounded buttons like Flutter app */
+            padding: 8px 20px;
+            font-weight: 500;
+            box-shadow: 0 3px 5px rgba(74, 78, 178, 0.2);
         }
         
         .btn-primary:hover {
-            background-color: #1a2530;
-            border-color: #1a2530;
+            background-color: #3a3e9a; /* Slightly darker */
+            border-color: #3a3e9a;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(74, 78, 178, 0.3);
         }
         
         .btn-secondary {
             background-color: var(--secondary-color);
             border-color: var(--secondary-color);
+            border-radius: 25px;
+            padding: 8px 20px;
+            font-weight: 500;
         }
         
         .btn-secondary:hover {
-            background-color: #c0392b;
-            border-color: #c0392b;
+            background-color: #ff6b6b;
+            border-color: #ff6b6b;
         }
         
         .card {
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s;
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
             margin-bottom: 20px;
+            overflow: hidden;
         }
         
         .card:hover {
             transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
         }
         
         .card-header {
             background-color: var(--primary-color);
             color: white;
-            border-radius: 10px 10px 0 0 !important;
+            border-radius: 15px 15px 0 0 !important;
+            font-weight: 600;
+            padding: 15px 20px;
+        }
+        
+        .card-body {
+            padding: 20px;
+        }
+        
+        .form-control {
+            border-radius: 10px;
+            padding: 10px 15px;
+            border: 1px solid #e0e0e0;
+            background-color: #f9f9f9;
+        }
+        
+        .form-control:focus {
+            box-shadow: 0 0 0 3px rgba(74, 78, 178, 0.2);
+            border-color: var(--primary-color);
+        }
+        
+        .form-label {
+            font-weight: 500;
+            color: #555;
+            margin-bottom: 8px;
         }
         
         .footer {
@@ -108,7 +149,7 @@
         .step {
             z-index: 2;
             position: relative;
-            background-color: #f8f9fa;
+            background-color: var(--background-color);
             padding: 0 10px;
         }
         
@@ -121,16 +162,57 @@
             align-items: center;
             justify-content: center;
             margin: 0 auto 10px;
+            transition: all 0.3s ease;
         }
         
         .step.active .step-icon {
             background-color: var(--primary-color);
             color: white;
+            box-shadow: 0 3px 10px rgba(74, 78, 178, 0.3);
         }
         
         .step.completed .step-icon {
             background-color: var(--secondary-color);
             color: white;
+        }
+        
+        .step-title {
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        /* Alert styling */
+        .alert {
+            border-radius: 10px;
+            border: none;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        }
+        
+        .alert-success {
+            background-color: #E8F5E9;
+            color: #2E7D32;
+        }
+        
+        .alert-danger {
+            background-color: #FFEBEE;
+            color: #C62828;
+        }
+        
+        /* Container styling */
+        .container {
+            padding: 0 20px;
+        }
+        
+        /* Page headings */
+        h2, h3, h4 {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        /* Lead text */
+        .lead {
+            font-weight: 400;
+            color: #555;
         }
     </style>
     

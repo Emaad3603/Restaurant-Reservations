@@ -4,33 +4,36 @@
 
 @section('content')
 <div class="row mb-4">
-    <div class="col-md-12">
-        <h2 class="mb-4">Select Your Hotel</h2>
-        <p class="lead">Please choose the hotel you are staying at to continue with your restaurant reservation.</p>
+    <div class="col-md-12 text-center">
+        <h2 class="mb-3">Select Your Hotel</h2>
+        <p class="lead mb-4">Please choose the hotel you are staying at to continue with your reservation.</p>
     </div>
 </div>
 
-<div class="row">
+<div class="row justify-content-center">
     @forelse($hotels as $hotel)
         <div class="col-md-4 mb-4">
             <div class="card hotel-card h-100">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">{{ $hotel->name }}</h5>
-                </div>
-                <div class="card-body">
+                <div class="card-img-top position-relative overflow-hidden" style="height: 160px; background-color: #f0f2ff;">
                     @if($hotel->logo_url)
-                        <img src="{{ $hotel->logo_url }}" alt="{{ $hotel->name }}" class="img-fluid mb-3" style="max-height: 150px;">
+                        <img src="{{ $hotel->logo_url }}" alt="{{ $hotel->name }}" class="img-fluid w-100 h-100 object-fit-cover">
                     @else
-                        <div class="text-center mb-3">
-                            <i class="fas fa-hotel fa-5x text-muted"></i>
+                        <div class="d-flex align-items-center justify-content-center h-100">
+                            <i class="fas fa-hotel fa-4x text-primary opacity-50"></i>
                         </div>
                     @endif
-                    
-                    <form action="{{ route('hotels.validateRoom', ['hotelId' => $hotel->hotel_id]) }}" method="POST" class="mt-3">
+                    <div class="position-absolute bottom-0 start-0 w-100 p-3" style="background: linear-gradient(transparent, rgba(0,0,0,0.7));">
+                        <h5 class="card-title text-white mb-0">{{ $hotel->name }}</h5>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form action="{{ route('hotels.validateRoom', ['hotelId' => $hotel->hotel_id]) }}" method="POST" class="mt-2">
                         @csrf
                         <div class="mb-3">
-                            <label for="room_number" class="form-label">Room Number</label>
-                            <input type="text" class="form-control" id="room_number" name="room_number" required placeholder="Enter your room number">
+                            <label for="room_number_{{ $hotel->hotel_id }}" class="form-label">
+                                <i class="fas fa-door-closed me-2 text-primary"></i>Room Number
+                            </label>
+                            <input type="text" class="form-control" id="room_number_{{ $hotel->hotel_id }}" name="room_number" required placeholder="Enter your room number">
                         </div>
                         <button type="submit" class="btn btn-primary w-100">
                             <i class="fas fa-check-circle me-2"></i> Select Hotel
@@ -40,11 +43,30 @@
             </div>
         </div>
     @empty
-        <div class="col-12">
-            <div class="alert alert-info">
-                <i class="fas fa-info-circle me-2"></i> No hotels are currently available. Please try again later.
+        <div class="col-md-8">
+            <div class="alert alert-info p-4 text-center">
+                <i class="fas fa-info-circle fa-2x mb-3 text-primary"></i>
+                <h5>No Hotels Available</h5>
+                <p class="mb-0">No hotels are currently available. Please try again later.</p>
             </div>
         </div>
     @endforelse
 </div>
+@endsection
+
+@section('styles')
+<style>
+    .object-fit-cover {
+        object-fit: cover;
+    }
+    
+    .hotel-card {
+        transition: all 0.3s ease;
+    }
+    
+    .hotel-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(74, 78, 178, 0.1);
+    }
+</style>
 @endsection 

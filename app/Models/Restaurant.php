@@ -71,6 +71,15 @@ class Restaurant extends Model
     }
     
     /**
+     * Get the meal types for the restaurant.
+     */
+    public function mealTypes()
+    {
+        return $this->belongsToMany(MealType::class, 'restaurant_meal_types', 'restaurant_id', 'meal_type_id')
+                    ->withPivot('id');
+    }
+    
+    /**
      * Get the restaurant's translation for the specified language.
      */
     public function getTranslation($languageCode = 'en')

@@ -51,6 +51,31 @@ class MealType extends Model
     }
     
     /**
+     * Get the restaurants that offer this meal type.
+     */
+    public function restaurants()
+    {
+        return $this->belongsToMany(Restaurant::class, 'restaurant_meal_types', 'meal_type_id', 'restaurant_id')
+                    ->withPivot('id');
+    }
+    
+    /**
+     * Get the translations for the meal type.
+     */
+    public function translations()
+    {
+        return $this->hasMany(MealTypeTranslation::class, 'meal_type_id', 'meal_type_id');
+    }
+    
+    /**
+     * Get the meal type's translation for the specified language.
+     */
+    public function getTranslation($languageCode = 'en')
+    {
+        return $this->translations()->where('language_code', $languageCode)->first();
+    }
+    
+    /**
      * Get the reservations for the meal type.
      */
     public function reservations()

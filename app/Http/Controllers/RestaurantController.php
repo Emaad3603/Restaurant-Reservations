@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Hotel;
 use App\Models\Restaurant;
 use App\Models\MealType;
+use App\Models\MealTypeTranslation;
+use App\Models\RestaurantMealType;
 use Illuminate\Http\Request;
 
 class RestaurantController extends Controller
@@ -29,11 +31,54 @@ class RestaurantController extends Controller
             ->where('active', 1)
             ->get();
         
-        // Get all meal types
-        $mealTypes = MealType::where('company_id', 1) // Default company ID, adjust as needed
+        // Get all meal types with translations
+        $mealTypes = MealType::with(['translations' => function($query) {
+                $query->where('language_code', 'en'); // Default to English
+            }])
+            ->where('company_id', 1) // Default company ID, adjust as needed
             ->get();
         
+        // For each meal type, get its translated name
+        foreach ($mealTypes as $mealType) {
+            $translation = $mealType->getTranslation('en');
+            if ($translation) {
+                $mealType->translated_name = $translation->name;
+            } else {
+                $mealType->translated_name = $mealType->name ?? 'Unknown';
+            }
+        }
+        
         return view('restaurants.index', compact('restaurants', 'mealTypes'));
+    }
+    
+    /**
+     * Filter restaurants by meal type
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function filter(Request $request)
+    {
+        $mealTypeId = $request->input('meal_type_id');
+        $hotelId = $request->input('hotel_id');
+        
+        // Get restaurants that offer the selected meal type
+        $restaurantIds = RestaurantMealType::where('meal_type_id', $mealTypeId)
+            ->pluck('restaurant_id')
+            ->toArray();
+            
+        // If no restaurants are found for this meal type, return all active restaurants in this hotel
+        if (empty($restaurantIds)) {
+            $restaurantIds = Restaurant::where('hotel_id', $hotelId)
+                ->where('active', 1)
+                ->pluck('restaurants_id')
+                ->toArray();
+        }
+        
+        return response()->json([
+            'success' => true,
+            'restaurants' => $restaurantIds
+        ]);
     }
     
     /**
@@ -62,9 +107,22 @@ class RestaurantController extends Controller
     {
         $restaurant = Restaurant::findOrFail($restaurantId);
         
-        // Get meal types
-        $mealTypes = MealType::where('company_id', 1) // Default company ID, adjust as needed
+        // Get meal types with translations
+        $mealTypes = MealType::with(['translations' => function($query) {
+                $query->where('language_code', 'en'); // Default to English
+            }])
+            ->where('company_id', 1) // Default company ID, adjust as needed
             ->get();
+        
+        // For each meal type, get its translated name
+        foreach ($mealTypes as $mealType) {
+            $translation = $mealType->getTranslation('en');
+            if ($translation) {
+                $mealType->translated_name = $translation->name;
+            } else {
+                $mealType->translated_name = $mealType->name ?? 'Unknown';
+            }
+        }
         
         return view('restaurants.reserve', compact('restaurant', 'mealTypes'));
     }

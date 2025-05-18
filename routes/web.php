@@ -35,6 +35,7 @@ Route::post('/guest', [GuestController::class, 'store'])->name('guest.store');
 
 // Restaurant routes
 Route::get('/restaurants', [RestaurantController::class, 'index'])->name('restaurants.index');
+Route::get('/restaurants/filter', [RestaurantController::class, 'filter'])->name('restaurants.filter');
 Route::get('/restaurants/{restaurantId}/menu', [RestaurantController::class, 'showMenu'])->name('restaurants.menu');
 Route::get('/restaurants/{restaurantId}/reserve', [RestaurantController::class, 'showReservationForm'])->name('restaurants.reserve');
 
