@@ -120,6 +120,24 @@
 
 @section('styles')
 <style>
+        body {
+        background-image: url('/images/texture.jpg');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        position: relative;
+    }
+
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.95);
+        z-index: -1;
+    }
     .reservation-info-card {
         background-color: #F8F9FF;
         border-radius: 15px;

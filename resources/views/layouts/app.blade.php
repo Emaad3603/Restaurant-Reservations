@@ -17,7 +17,7 @@
     <!-- Custom CSS -->
     <style>
         :root {
-            --primary-color: #4A4EB2; /* Changed to match Flutter app */
+            --primary-color: #000000; /* Changed to match Flutter app */
             --secondary-color: #FF8A80; /* Changed to match Flutter app */
             --accent-color: #FFD54F; /* Changed to match Flutter app */
             --light-color: #F5F5F5;
@@ -53,8 +53,8 @@
         }
         
         .btn-primary:hover {
-            background-color: #3a3e9a; /* Slightly darker */
-            border-color: #3a3e9a;
+            background-color: #FF8A80; /* Slightly darker */
+            border-color: #FF8A80;
             transform: translateY(-2px);
             box-shadow: 0 5px 10px rgba(74, 78, 178, 0.3);
         }

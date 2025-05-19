@@ -16,7 +16,7 @@
             <div class="card-body p-4 p-md-5">
                 <div class="text-center mb-4">
                     <div class="verification-icon mb-3">
-                        <i class="fas fa-user-check fa-2x text-primary"></i>
+                        <i class="fas fa-user-check fa-2x style="color: #FF8A80;""></i>
                     </div>
                     <h4 class="mb-1">Birth Date Verification</h4>
                     <p class="text-muted">We need your birth date to verify your identity</p>
@@ -27,7 +27,7 @@
                     
                     <div class="mb-4">
                         <label for="birth_date" class="form-label">
-                            <i class="fas fa-calendar-alt me-2 text-primary"></i>Birth Date
+                            <i class="fas fa-calendar-alt me-2 style="color: #FF8A80;""></i>Birth Date
                         </label>
                         <input type="date" class="form-control form-control-lg @error('birth_date') is-invalid @enderror" id="birth_date" name="birth_date" value="{{ old('birth_date') }}" required>
                         @error('birth_date')
@@ -50,7 +50,7 @@
         <div class="card border-0 shadow-sm reservation-info-card">
             <div class="card-body p-4">
                 <h5 class="card-title mb-4">
-                    <i class="fas fa-info-circle me-2 text-primary"></i>Reservation Information
+                    <i class="fas fa-info-circle me-2 style="color: #FF8A80;""></i>Reservation Information
                 </h5>
                 
                 <div class="row g-3">
@@ -75,6 +75,24 @@
 
 @section('styles')
 <style>
+     body {
+        background-image: url('/images/restaurantbk.jpg');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        position: relative;
+    }
+
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.95);
+        z-index: -1;
+    }
     .verification-icon {
         height: 80px;
         width: 80px;

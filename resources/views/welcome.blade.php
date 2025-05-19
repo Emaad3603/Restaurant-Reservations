@@ -11,7 +11,7 @@
                     <img src="https://cdn.pixabay.com/photo/2017/09/23/12/40/catering-2778755_1280.jpg" alt="Restaurant Dining" class="img-fluid w-100" style="height: 250px; object-fit: cover;">
                     <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(rgba(74, 78, 178, 0.3), rgba(74, 78, 178, 0.8))"></div>
                     <div class="position-absolute top-50 start-50 translate-middle text-center w-100 px-4">
-                        <h1 class="text-white fw-bold mb-3">Restaurant Reservations</h1>
+                        <h1 class="text-white fw-bold mb-3 ">Restaurant Reservations</h1>
                         <p class="text-white fs-5 mb-0">Simplify your dining experience</p>
                     </div>
                 </div>
@@ -68,6 +68,24 @@
 
 @section('styles')
 <style>
+        body {
+        background-image: url('/images/texture.jpg');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        position: relative;
+    }
+
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.95);
+        z-index: -1;
+    }
     .welcome-container {
         margin-top: 2rem;
         margin-bottom: 3rem;

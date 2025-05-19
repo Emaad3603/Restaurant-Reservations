@@ -31,7 +31,7 @@
                         @csrf
                         <div class="mb-3">
                             <label for="room_number_{{ $hotel->hotel_id }}" class="form-label">
-                                <i class="fas fa-door-closed me-2 text-primary"></i>Room Number
+                                <i class="fas fa-door-closed me-2 style="color: #FF8A80;""></i>Room Number
                             </label>
                             <input type="text" class="form-control" id="room_number_{{ $hotel->hotel_id }}" name="room_number" required placeholder="Enter your room number">
                         </div>
@@ -56,6 +56,25 @@
 
 @section('styles')
 <style>
+    body {
+        background-image: url('/images/texture.jpg');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        position: relative;
+    }
+
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.95);
+        z-index: -1;
+    }
+
     .object-fit-cover {
         object-fit: cover;
     }
