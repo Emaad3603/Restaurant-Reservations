@@ -29,14 +29,18 @@ class Hotel extends Model
      * @var array
      */
     protected $fillable = [
-        'name', 
-        'verification_type', 
-        'company_id', 
-        'free_count', 
-        'time_zone', 
-        'plus_days_adjust', 
-        'minus_days_adjust', 
-        'active', 
+        'name',
+        'verification_type',
+        'company_id',
+        'created_by',
+        'updated_at',
+        'updated_by',
+        'free_count',
+        'time_zone',
+        'plus_days_adjust',
+        'minus_days_adjust',
+        'created_at',
+        'active',
         'restricted_restaurants',
         'logo_url'
     ];

@@ -64,7 +64,7 @@ class MealType extends Model
      */
     public function translations()
     {
-        return $this->hasMany(MealTypeTranslation::class, 'meal_type_id', 'meal_type_id');
+        return $this->hasMany(MealTypeTranslation::class, 'meal_types_id', 'meal_types_id');
     }
     
     /**

@@ -32,10 +32,14 @@ class Restaurant extends Model
         'company_id',
         'name',
         'capacity',
+        'created_at',
         'active',
         'hotel_id',
         'logo_url',
-        'always_paid_free'
+        'always_paid_free',
+        'created_by',
+        'updated_at',
+        'updated_by'
     ];
     
     /**
@@ -86,4 +90,11 @@ class Restaurant extends Model
     {
         return $this->translations()->where('language_code', $languageCode)->first();
     }
+
+    public function menus()
+    {
+        return $this->hasMany(Menu::class, 'restaurants_id', 'restaurants_id');
+    }
+
+    public $timestamps = false;
 }

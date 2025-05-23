@@ -35,6 +35,12 @@
                             </label>
                             <input type="text" class="form-control" id="room_number_{{ $hotel->hotel_id }}" name="room_number" required placeholder="Enter your room number">
                         </div>
+                        @if($hotel->verification_type == 0)
+                            <p class="text-muted">Please enter your birthdate for verification.</p>
+                        @elseif($hotel->verification_type == 1)
+                            <p class="text-muted">Please enter your departure date for verification.</p>
+                        @endif
+                        <input type="hidden" name="verification_type" value="{{ $hotel->verification_type }}">
                         <button type="submit" class="btn btn-primary w-100">
                             <i class="fas fa-check-circle me-2"></i> Select Hotel
                         </button>

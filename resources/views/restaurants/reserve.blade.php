@@ -101,7 +101,7 @@
                                     id="meal_type_id" name="meal_type_id" required>
                                 <option value="">Select a meal type</option>
                                 @foreach($mealTypes as $mealType)
-                                    <option value="{{ $mealType->meal_type_id }}" {{ old('meal_type_id') == $mealType->meal_type_id ? 'selected' : '' }}>
+                                    <option value="{{ $mealType->meal_types_id }}" {{ old('meal_type_id') == $mealType->meal_types_id ? 'selected' : '' }}>
                                         {{ $mealType->translated_name }}
                                     </option>
                                 @endforeach

@@ -7,6 +7,7 @@ use App\Models\Restaurant;
 use App\Models\MealType;
 use App\Models\MealTypeTranslation;
 use App\Models\RestaurantMealType;
+use App\Models\MenuCategory;
 use Illuminate\Http\Request;
 
 class RestaurantController extends Controller
@@ -90,11 +91,18 @@ class RestaurantController extends Controller
     public function showMenu($restaurantId)
     {
         $restaurant = Restaurant::findOrFail($restaurantId);
-        
-        // Get restaurant translation (assuming English as default)
         $translation = $restaurant->getTranslation('en');
-        
-        return view('restaurants.menu', compact('restaurant', 'translation'));
+
+        // Fetch the Breakfast Menu for this restaurant/company
+        $menu = \App\Models\Menu::where('company_id', $restaurant->company_id)
+            ->where('label', 'Breakfast Menu')
+            ->first();
+
+        $menuCategories = \App\Models\MenuCategory::with([
+            'subcategories.items'
+        ])->where('company_id', $restaurant->company_id)->get();
+
+        return view('restaurants.menu', compact('restaurant', 'translation', 'menuCategories', 'menu'));
     }
     
     /**
@@ -107,11 +115,11 @@ class RestaurantController extends Controller
     {
         $restaurant = Restaurant::findOrFail($restaurantId);
         
-        // Get meal types with translations
+        // Use the restaurant's company_id
         $mealTypes = MealType::with(['translations' => function($query) {
-                $query->where('language_code', 'en'); // Default to English
+                $query->where('language_code', 'en');
             }])
-            ->where('company_id', 1) // Default company ID, adjust as needed
+            ->where('company_id', $restaurant->company_id)
             ->get();
         
         // For each meal type, get its translated name

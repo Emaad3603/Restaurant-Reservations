@@ -29,26 +29,40 @@ class Reservation extends Model
      * @var array
      */
     protected $fillable = [
-        'date_time',
         'guest_reservations_id',
-        'restaurant_id',
-        'status',
+        'room_number',
         'pax',
-        'meal_type_id',
-        'customer_request',
-        'restaurant_remarks',
+        'names',
+        'restaurant_id',
+        'day',
+        'time',
         'company_id',
-        'token',
-        'confirmation_code'
+        'guest_hotel_id',
+        'restaurant_hotel_id',
+        'canceled',
+        'ended',
+        'created_at',
+        'qrcode',
+        'created_by',
+        'canceled_by',
+        'canceled_at',
+        'currencies_id',
+        'price',
+        'exchange_rate',
+        'paid',
+        'always_paid_free',
+        'taxes',
+        'discounts',
+        'original_price',
+        'sub_total',
+        'after_tax',
+        'total_ammount_due',
+        'per_person',
+        'reservation_by_room',
+        'time_zone',
+        'meal_types_id',
+        'menus_id'
     ];
-    
-    /**
-     * Get the guest reservation associated with the reservation.
-     */
-    public function guestReservation()
-    {
-        return $this->belongsTo(GuestReservation::class, 'guest_reservations_id', 'guest_reservations_id');
-    }
     
     /**
      * Get the restaurant associated with the reservation.
@@ -59,18 +73,27 @@ class Reservation extends Model
     }
     
     /**
-     * Get the meal type associated with the reservation.
+     * Get the guest reservation associated with the reservation.
      */
+    public function guestReservation()
+    {
+        return $this->belongsTo(GuestReservation::class, 'guest_reservations_id', 'guest_reservations_id');
+    }
+
+    public function currency()
+    {
+        return $this->belongsTo(Currency::class, 'currencies_id', 'currencies_id');
+    }
+
     public function mealType()
     {
-        return $this->belongsTo(MealType::class, 'meal_type_id', 'meal_type_id');
+        return $this->belongsTo(MealType::class, 'meal_types_id', 'meal_types_id');
     }
-    
-    /**
-     * Get the company associated with the reservation.
-     */
-    public function company()
+
+    public function menu()
     {
-        return $this->belongsTo(Company::class, 'company_id', 'company_id');
+        return $this->belongsTo(Menu::class, 'menus_id', 'menus_id');
     }
+
+    const UPDATED_AT = null;
 }

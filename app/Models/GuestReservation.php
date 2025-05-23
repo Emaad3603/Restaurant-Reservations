@@ -64,18 +64,10 @@ class GuestReservation extends Model
     }
     
     /**
-     * Get the guest details for the guest reservation.
+     * Get the guest details associated with the guest reservation.
      */
     public function guestDetails()
     {
-        return $this->hasMany(GuestDetail::class, 'guest_reservations_id', 'guest_reservations_id');
-    }
-    
-    /**
-     * Get the reservations for the guest reservation.
-     */
-    public function reservations()
-    {
-        return $this->hasMany(Reservation::class, 'guest_reservations_id', 'guest_reservations_id');
+        return $this->hasMany(Guest::class, 'guest_reservations_id', 'guest_reservations_id');
     }
 }

@@ -14,7 +14,7 @@ class MealTypeTranslation extends Model
      *
      * @var string
      */
-    protected $table = 'meal_type_translations';
+    protected $table = 'meal_types_translation';
     
     /**
      * The primary key for the model.
@@ -29,7 +29,7 @@ class MealTypeTranslation extends Model
      * @var array
      */
     protected $fillable = [
-        'meal_type_id',
+        'meal_types_id',
         'language_code',
         'name',
         'description'
@@ -47,6 +47,6 @@ class MealTypeTranslation extends Model
      */
     public function mealType()
     {
-        return $this->belongsTo(MealType::class, 'meal_type_id', 'meal_type_id');
+        return $this->belongsTo(MealType::class, 'meal_types_id', 'meal_types_id');
     }
 } 

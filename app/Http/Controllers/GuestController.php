@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\GuestDetail;
+use App\Models\Guest;
 use App\Models\GuestReservation;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -61,10 +61,10 @@ class GuestController extends Controller
         $validGuest = false;
         $guestName = '';
         
-        foreach ($guestReservation->guestDetails as $guestDetail) {
-            if ($guestDetail->birth_date == $birthDate) {
+        foreach ($guestReservation->guestDetails as $guest) {
+            if ($guest->birth_date == $birthDate) {
                 $validGuest = true;
-                $guestName = $guestDetail->guest_name;
+                $guestName = $guest->guest_name;
                 break;
             }
         }

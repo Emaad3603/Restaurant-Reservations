@@ -33,96 +33,42 @@
                     </div>
                 @endif
                 
-                <!-- Sample menu items - in a real app these would come from the database -->
-                <h4 class="mt-4">Sample Menu Items</h4>
+                <!-- Dynamic menu items -->
+                <h4 class="mt-4">Menu</h4>
                 <div class="row">
-                    <div class="col-md-6">
-                        <div class="card mb-3">
-                            <div class="card-body">
-                                <h5>Appetizers</h5>
-                                <ul class="list-group list-group-flush">
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        Caesar Salad
-                                        <span class="badge bg-primary rounded-pill">$12</span>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        Garlic Bread
-                                        <span class="badge bg-primary rounded-pill">$8</span>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        Bruschetta
-                                        <span class="badge bg-primary rounded-pill">$10</span>
-                                    </li>
-                                </ul>
+                    @foreach($menuCategories as $category)
+                        <div class="col-md-6">
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <h5>{{ $category->label }}</h5>
+                                    <ul class="list-group list-group-flush">
+                                        @foreach($category->subcategories as $subcategory)
+                                            @foreach($subcategory->items as $item)
+                                                @php
+                                                    $menuItem = $menu ? \DB::table('menus_items')
+                                                        ->where('menus_id', $menu->menus_id)
+                                                        ->where('items_id', $item->items_id)
+                                                        ->first() : null;
+                                                    $price = $menuItem->price ?? null;
+                                                    $currencySymbol = '';
+                                                    if ($menuItem && $menuItem->currencies_id) {
+                                                        $currency = \DB::table('currencies')->where('currencies_id', $menuItem->currencies_id)->first();
+                                                        $currencySymbol = $currency->currency_symbol ?? '';
+                                                    }
+                                                @endphp
+                                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                    {{ $item->label }}
+                                                    @if($price)
+                                                        <span class="badge bg-primary rounded-pill">{{ $currencySymbol }}{{ $price }}</span>
+                                                    @endif
+                                                </li>
+                                            @endforeach
+                                        @endforeach
+                                    </ul>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="card mb-3">
-                            <div class="card-body">
-                                <h5>Main Courses</h5>
-                                <ul class="list-group list-group-flush">
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        Filet Mignon
-                                        <span class="badge bg-primary rounded-pill">$38</span>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        Grilled Salmon
-                                        <span class="badge bg-primary rounded-pill">$28</span>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        Vegetable Risotto
-                                        <span class="badge bg-primary rounded-pill">$22</span>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="card mb-3">
-                            <div class="card-body">
-                                <h5>Desserts</h5>
-                                <ul class="list-group list-group-flush">
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        Tiramisu
-                                        <span class="badge bg-primary rounded-pill">$10</span>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        Chocolate Lava Cake
-                                        <span class="badge bg-primary rounded-pill">$12</span>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        Ice Cream Selection
-                                        <span class="badge bg-primary rounded-pill">$8</span>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="card mb-3">
-                            <div class="card-body">
-                                <h5>Beverages</h5>
-                                <ul class="list-group list-group-flush">
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        House Wine (Glass)
-                                        <span class="badge bg-primary rounded-pill">$9</span>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        Soft Drinks
-                                        <span class="badge bg-primary rounded-pill">$4</span>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        Specialty Coffee
-                                        <span class="badge bg-primary rounded-pill">$6</span>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
+                    @endforeach
                 </div>
             </div>
         </div>
