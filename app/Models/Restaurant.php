@@ -79,8 +79,14 @@ class Restaurant extends Model
      */
     public function mealTypes()
     {
-        return $this->belongsToMany(MealType::class, 'restaurant_meal_types', 'restaurant_id', 'meal_type_id')
-                    ->withPivot('id');
+        return $this->hasManyThrough(
+            MealType::class,
+            Reservation::class,
+            'restaurant_id', // Foreign key on reservations table
+            'meal_types_id', // Foreign key on meal_types table
+            'restaurants_id', // Local key on restaurants table
+            'meal_types_id' // Local key on reservations table
+        );
     }
     
     /**

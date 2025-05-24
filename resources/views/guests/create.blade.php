@@ -16,20 +16,23 @@
             <div class="card-body p-4 p-md-5">
                 <div class="text-center mb-4">
                     <div class="verification-icon mb-3">
-                        <i class="fas fa-user-check fa-2x style="color: #FF8A80;""></i>
+                        <i class="fas fa-user-check fa-2x" style="color: #FF8A80;"></i>
                     </div>
-                    <h4 class="mb-1">Birth Date Verification</h4>
-                    <p class="text-muted">We need your birth date to verify your identity</p>
+                    <h4 class="mb-1" id="verificationTitle">
+                        {{ $verificationType == 0 ? 'Birth Date Verification' : 'Departure Date Verification' }}
+                    </h4>
+                    <p class="text-muted" id="verificationDesc">
+                        {{ $verificationType == 0 ? 'We need your birth date to verify your identity' : 'We need your departure date to verify your identity' }}
+                    </p>
                 </div>
 
-                <form action="{{ route('guest.store') }}" method="POST">
+                <form action="{{ route('guest.store') }}" method="POST" id="verificationForm">
                     @csrf
-                    
-                    <div class="mb-4">
+                    <div class="mb-4" id="birthDateField" style="display: {{ $verificationType == 0 ? 'block' : 'none' }};">
                         <label for="birth_date" class="form-label">
-                            <i class="fas fa-calendar-alt me-2 style="color: #FF8A80;""></i>Birth Date
+                            <i class="fas fa-calendar-alt me-2" style="color: #FF8A80;"></i>Birth Date
                         </label>
-                        <input type="date" class="form-control form-control-lg @error('birth_date') is-invalid @enderror" id="birth_date" name="birth_date" value="{{ old('birth_date') }}" required>
+                        <input type="date" class="form-control form-control-lg @error('birth_date') is-invalid @enderror" id="birth_date" name="birth_date" value="{{ old('birth_date') }}" {{ $verificationType == 0 ? 'required' : '' }}>
                         @error('birth_date')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -37,7 +40,18 @@
                             <i class="fas fa-info-circle me-1"></i> This information will only be used for verification purposes.
                         </div>
                     </div>
-                    
+                    <div class="mb-4" id="departureDateField" style="display: {{ $verificationType == 1 ? 'block' : 'none' }};">
+                        <label for="departure_date" class="form-label">
+                            <i class="fas fa-calendar-alt me-2" style="color: #FF8A80;"></i>Departure Date
+                        </label>
+                        <input type="date" class="form-control form-control-lg @error('departure_date') is-invalid @enderror" id="departure_date" name="departure_date" value="{{ old('departure_date') }}" {{ $verificationType == 1 ? 'required' : '' }}>
+                        @error('departure_date')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                        <div class="form-text text-muted mt-2">
+                            <i class="fas fa-info-circle me-1"></i> This information will only be used for verification purposes.
+                        </div>
+                    </div>
                     <div class="d-grid mt-4">
                         <button type="submit" class="btn btn-primary btn-lg py-3">
                             Verify & Continue <i class="fas fa-arrow-right ms-2"></i>

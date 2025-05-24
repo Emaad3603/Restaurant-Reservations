@@ -68,4 +68,69 @@ class Hotel extends Model
     {
         return $this->hasMany(GuestReservation::class, 'hotel_id', 'hotel_id');
     }
+    
+    /**
+     * Check if the hotel is always free
+     */
+    public function isAlwaysFree()
+    {
+        return $this->free_count === -1;
+    }
+    
+    /**
+     * Check if the hotel is always paid
+     */
+    public function isAlwaysPaid()
+    {
+        return $this->free_count === 0;
+    }
+    
+    /**
+     * Get remaining free reservations for a room
+     */
+    public function getRemainingFreeReservations($roomNumber)
+    {
+        if ($this->isAlwaysFree()) {
+            return -1; // Unlimited free reservations
+        }
+        
+        if ($this->isAlwaysPaid()) {
+            return 0; // No free reservations
+        }
+        
+        $usedCount = $this->guestReservations()
+            ->where('room_number', $roomNumber)
+            ->where('status', 'checked_in')
+            ->count();
+            
+        return max(0, $this->free_count - $usedCount);
+    }
+    
+    /**
+     * Check if a restaurant is restricted for this hotel
+     */
+    public function isRestaurantRestricted($restaurantId)
+    {
+        if (empty($this->restricted_restaurants)) {
+            return false;
+        }
+        
+        $restrictedRestaurants = explode(',', $this->restricted_restaurants);
+        return in_array($restaurantId, $restrictedRestaurants);
+    }
+    
+    /**
+     * Get available restaurants for this hotel
+     */
+    public function getAvailableRestaurants()
+    {
+        return $this->restaurants()
+            ->where('active', 1)
+            ->whereNotIn('restaurants_id', function($query) {
+                $query->select('restaurants_id')
+                    ->from('restaurants')
+                    ->whereRaw('FIND_IN_SET(restaurants_id, ?)', [$this->restricted_restaurants]);
+            })
+            ->get();
+    }
 }

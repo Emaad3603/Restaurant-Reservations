@@ -43,4 +43,28 @@ class HotelController extends Controller
         // Redirect to the guest information page
         return redirect()->route('guest.create');
     }
+    
+    /**
+     * Get the reservation status for a hotel room.
+     */
+    public function getReservationStatus($hotelId)
+    {
+        $hotel = Hotel::findOrFail($hotelId);
+        $roomNumber = session('room_number');
+        
+        if (!$roomNumber) {
+            return response()->json([
+                'error' => 'Room number not found in session'
+            ], 400);
+        }
+        
+        $remainingFreeReservations = $hotel->getRemainingFreeReservations($roomNumber);
+        
+        return response()->json([
+            'is_always_free' => $hotel->isAlwaysFree(),
+            'is_always_paid' => $hotel->isAlwaysPaid(),
+            'remaining_free_reservations' => $remainingFreeReservations,
+            'total_free_reservations' => $hotel->free_count
+        ]);
+    }
 }

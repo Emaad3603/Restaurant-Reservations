@@ -33,17 +33,21 @@
                     <div class="col-md-6">
                         <div class="mb-4">
                             <h5>Reservation Information</h5>
-                            <p><strong>Confirmation Code:</strong> {{ $reservation->confirmation_code }}</p>
+                            <p><strong>Confirmation Code:</strong> {{ $reservation->qrcode }}</p>
                             <p><strong>Date & Time:</strong> {{ \Carbon\Carbon::parse($reservation->date_time)->format('F j, Y - g:i A') }}</p>
                             <p><strong>Number of Guests:</strong> {{ $reservation->pax }}</p>
-                            <p><strong>Meal Type:</strong> {{ $reservation->mealType->name ?? 'N/A' }}</p>
+                            <p><strong>Meal Type:</strong> {{ $reservation->mealType && $reservation->mealType->getTranslation('en') ? $reservation->mealType->getTranslation('en')->name : ($reservation->mealType->name ?? 'N/A') }}</p>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="mb-4">
                             <h5>Guest Information</h5>
-                            @if($reservation->guestReservation && $reservation->guestReservation->guestDetails->first())
-                                <p><strong>Name:</strong> {{ $reservation->guestReservation->guestDetails->first()->first_name }} {{ $reservation->guestReservation->guestDetails->first()->last_name }}</p>
+                            @if($reservation->guestReservation && $reservation->guestReservation->guestDetails->count())
+                                <p><strong>Name(s):</strong>
+                                    @foreach($reservation->guestReservation->guestDetails as $guest)
+                                        {{ $guest->guest_name }}@if(!$loop->last), @endif
+                                    @endforeach
+                                </p>
                             @endif
                             <p><strong>Hotel:</strong> {{ session('hotel_name') }}</p>
                             <p><strong>Room Number:</strong> {{ $reservation->guestReservation->room_number ?? session('room_number') }}</p>

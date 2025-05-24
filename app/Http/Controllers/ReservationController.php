@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Models\GuestReservation;
 use App\Models\Hotel;
+use Illuminate\Support\Facades\DB;
 
 class ReservationController extends Controller
 {
@@ -49,8 +50,13 @@ class ReservationController extends Controller
 
         // Check verification type
         if ($hotel->verification_type == 0) {
-            // Validate using birthdate
-            if (!$guestReservation->birthdate) {
+            // Validate using birthdate in guest_details
+            $hasBirthdate = DB::table('guest_details')
+                ->where('guest_reservations_id', $guestReservation->guest_reservations_id)
+                ->whereNotNull('birth_date')
+                ->where('birth_date', '!=', '')
+                ->exists();
+            if (!$hasBirthdate) {
                 return back()->withErrors(['date' => 'Birthdate is required for verification.']);
             }
         } else if ($hotel->verification_type == 1) {

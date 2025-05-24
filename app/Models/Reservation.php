@@ -87,7 +87,7 @@ class Reservation extends Model
 
     public function mealType()
     {
-        return $this->belongsTo(MealType::class, 'meal_types_id', 'meal_types_id');
+        return $this->belongsTo(\App\Models\MealType::class, 'meal_types_id', 'meal_types_id');
     }
 
     public function menu()

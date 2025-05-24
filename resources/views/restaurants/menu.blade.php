@@ -45,15 +45,27 @@
                                         @foreach($category->subcategories as $subcategory)
                                             @foreach($subcategory->items as $item)
                                                 @php
-                                                    $menuItem = $menu ? \DB::table('menus_items')
-                                                        ->where('menus_id', $menu->menus_id)
-                                                        ->where('items_id', $item->items_id)
-                                                        ->first() : null;
-                                                    $price = $menuItem->price ?? null;
+                                                    $menuItem = null;
+                                                    $price = null;
                                                     $currencySymbol = '';
-                                                    if ($menuItem && $menuItem->currencies_id) {
-                                                        $currency = \DB::table('currencies')->where('currencies_id', $menuItem->currencies_id)->first();
-                                                        $currencySymbol = $currency->currency_symbol ?? '';
+                                                    
+                                                    // Check each menu for the item
+                                                    foreach($menus as $menu) {
+                                                        $menuItem = \DB::table('menus_items')
+                                                            ->where('menus_id', $menu->menus_id)
+                                                            ->where('items_id', $item->items_id)
+                                                            ->first();
+                                                            
+                                                        if($menuItem && $menuItem->price) {
+                                                            $price = $menuItem->price;
+                                                            if($menuItem->currencies_id) {
+                                                                $currency = \DB::table('currencies')
+                                                                    ->where('currencies_id', $menuItem->currencies_id)
+                                                                    ->first();
+                                                                $currencySymbol = $currency->currency_symbol ?? '';
+                                                            }
+                                                            break;
+                                                        }
                                                     }
                                                 @endphp
                                                 <li class="list-group-item d-flex justify-content-between align-items-center">

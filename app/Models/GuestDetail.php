@@ -32,7 +32,7 @@ class GuestDetail extends Model
         'guest_reservations_id',
         'first_name',
         'last_name',
-        'birty_date',
+        'birth_date',
         'room_pax',
         'guest_type',
         'main_guest'

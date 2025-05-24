@@ -21,7 +21,7 @@ class MealType extends Model
      *
      * @var string
      */
-    protected $primaryKey = 'meal_type_id';
+    protected $primaryKey = 'meal_types_id';
     
     /**
      * The attributes that are mass assignable.
@@ -55,8 +55,14 @@ class MealType extends Model
      */
     public function restaurants()
     {
-        return $this->belongsToMany(Restaurant::class, 'restaurant_meal_types', 'meal_type_id', 'restaurant_id')
-                    ->withPivot('id');
+        return $this->hasManyThrough(
+            Restaurant::class,
+            Reservation::class,
+            'meal_types_id', // Foreign key on reservations table
+            'restaurants_id', // Foreign key on restaurants table
+            'meal_types_id', // Local key on meal_types table
+            'restaurant_id' // Local key on reservations table
+        );
     }
     
     /**
@@ -80,6 +86,6 @@ class MealType extends Model
      */
     public function reservations()
     {
-        return $this->hasMany(Reservation::class, 'meal_type_id', 'meal_type_id');
+        return $this->hasMany(Reservation::class, 'meal_types_id', 'meal_types_id');
     }
 }

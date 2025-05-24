@@ -4,6 +4,7 @@ use App\Http\Controllers\HotelController;
 use App\Http\Controllers\GuestController;
 use App\Http\Controllers\RestaurantController;
 use App\Http\Controllers\ReservationController;
+use App\Http\Controllers\PricingController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -28,6 +29,7 @@ Route::get('/', function () {
 // Hotel routes
 Route::get('/hotels', [HotelController::class, 'index'])->name('hotels.index');
 Route::post('/hotels/{hotelId}/validate-room', [HotelController::class, 'validateRoom'])->name('hotels.validateRoom');
+Route::get('/hotels/{hotelId}/reservation-status', [HotelController::class, 'getReservationStatus'])->name('hotels.reservationStatus');
 
 // Guest routes
 Route::get('/guest/create', [GuestController::class, 'create'])->name('guest.create');
@@ -38,6 +40,11 @@ Route::get('/restaurants', [RestaurantController::class, 'index'])->name('restau
 Route::get('/restaurants/filter', [RestaurantController::class, 'filter'])->name('restaurants.filter');
 Route::get('/restaurants/{restaurantId}/menu', [RestaurantController::class, 'showMenu'])->name('restaurants.menu');
 Route::get('/restaurants/{restaurantId}/reserve', [RestaurantController::class, 'showReservationForm'])->name('restaurants.reserve');
+Route::post('/restaurants/available-times', [RestaurantController::class, 'getAvailableTimes'])->name('restaurants.available-times');
+
+// Pricing routes
+Route::get('/restaurants/{restaurantId}/time-slots', [PricingController::class, 'getAvailableTimeSlots'])->name('pricing.timeSlots');
+Route::post('/pricing/calculate', [PricingController::class, 'calculatePrice'])->name('pricing.calculate');
 
 // Reservation routes
 Route::post('/reservations', [ReservationController::class, 'store'])->name('reservations.store');
