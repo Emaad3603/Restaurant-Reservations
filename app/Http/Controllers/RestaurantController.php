@@ -32,9 +32,16 @@ class RestaurantController extends Controller
         $hotel = Hotel::find(session('hotel_id'));
         $roomNumber = session('room_number');
         
-        // Get available restaurants for the hotel
-        $restaurants = $hotel->getAvailableRestaurants();
-        
+        // Get restaurants based on hotel's restriction settings
+        $restaurants = Restaurant::where('active', 1)
+            ->where(function($query) use ($hotel) {
+                if ($hotel->restricted_restaurants === 1) {
+                    // Only show restaurants from this hotel
+                    $query->where('hotel_id', $hotel->hotel_id);
+                }
+            })
+            ->get();
+            
         // Get all meal types with translations
         $mealTypes = MealType::with(['translations' => function($query) {
                 $query->where('language_code', 'en');
@@ -55,7 +62,7 @@ class RestaurantController extends Controller
         // Get remaining free reservations
         $remainingFreeReservations = $hotel->getRemainingFreeReservations($roomNumber);
         
-        return view('restaurants.index', compact('restaurants', 'mealTypes', 'remainingFreeReservations'));
+        return view('restaurants.index', compact('restaurants', 'mealTypes', 'remainingFreeReservations', 'hotel', 'roomNumber'));
     }
     
     /**
@@ -170,7 +177,7 @@ class RestaurantController extends Controller
             ->where('guest_reservations.room_number', $roomNumber)
             ->get();
         
-        return view('restaurants.reserve', compact('restaurant', 'pricingTimes', 'remainingFreeReservations', 'guests'));
+        return view('restaurants.reserve', compact('restaurant', 'pricingTimes', 'remainingFreeReservations', 'guests', 'hotel'));
     }
 
     /**

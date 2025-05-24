@@ -19,21 +19,7 @@
         </div>
     </div>
 
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <h2 class="mb-3">Select a Restaurant</h2>
-            <div class="meal-type-filters mb-4">
-                <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-outline-primary active" data-meal-type="all">All</button>
-                    @foreach($mealTypes as $mealType)
-                        <button type="button" class="btn btn-outline-primary" data-meal-type="{{ $mealType->meal_types_id }}">
-                            {{ $mealType->translated_name }}
-                        </button>
-                    @endforeach
-                </div>
-            </div>
-        </div>
-    </div>
+ 
 
     <div class="row">
         @forelse($restaurants as $restaurant)
@@ -49,6 +35,29 @@
                     <div class="card-body">
                         <h5 class="card-title">{{ $restaurant->name }}</h5>
                         <p class="card-text">{{ $restaurant->description }}</p>
+                        
+                        @php
+                            $restrictionType = $hotel->getRestaurantRestrictionType($restaurant->restaurants_id);
+                            $reservationStatus = $hotel->getRestaurantReservationStatus($restaurant->restaurants_id, $roomNumber);
+                        @endphp
+                        
+                        @if($restrictionType === 1)
+                            <div class="alert alert-warning mb-3">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                This restaurant is only available for guests staying at its hotel.
+                            </div>
+                        @elseif($restrictionType === 2)
+                            <div class="alert alert-info mb-3">
+                                <i class="fas fa-info-circle me-2"></i>
+                                This restaurant is available but requires payment for guests from other hotels.
+                            </div>
+                        @endif
+
+                        <div class="alert alert-{{ $reservationStatus['type'] }} mb-3">
+                            <i class="fas fa-{{ $reservationStatus['type'] === 'success' ? 'check-circle' : ($reservationStatus['type'] === 'warning' ? 'exclamation-triangle' : 'info-circle') }} me-2"></i>
+                            {{ $reservationStatus['message'] }}
+                        </div>
+                        
                         <div class="d-flex justify-content-between align-items-center">
                             <a href="{{ route('restaurants.menu', ['restaurantId' => $restaurant->restaurants_id]) }}" class="btn btn-outline-primary">
                                 View Menu

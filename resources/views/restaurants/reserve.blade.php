@@ -43,6 +43,13 @@
                         </div>
                     @endif
 
+                    @if($hotel->restaurant_restrictions === 2 && $restaurant->hotel_id !== $hotel->hotels_id)
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i> 
+                            This restaurant is in a different hotel. Your reservation will require payment.
+                        </div>
+                    @endif
+
                     <form method="POST" action="{{ route('reservations.store') }}" id="reservationForm">
                         @csrf
                         <input type="hidden" name="restaurant_id" value="{{ $restaurant->restaurants_id }}">

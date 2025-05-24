@@ -107,16 +107,123 @@ class Hotel extends Model
     }
     
     /**
+     * Get the reservation status for a specific restaurant
+     * Returns an array with:
+     * - is_free: boolean indicating if the reservation is free
+     * - message: string explaining the status
+     * - type: string indicating the type of status (success, warning, info)
+     */
+    public function getRestaurantReservationStatus($restaurantId, $roomNumber)
+    {
+        $restaurant = Restaurant::find($restaurantId);
+        if (!$restaurant) {
+            return [
+                'is_free' => false,
+                'message' => 'Restaurant not found',
+                'type' => 'warning'
+            ];
+        }
+
+        // Check restaurant's always_paid_free setting first
+        if ($restaurant->always_paid_free === 0) {
+            return [
+                'is_free' => true,
+                'message' => 'This restaurant is always free',
+                'type' => 'success'
+            ];
+        }
+
+        if ($restaurant->always_paid_free === 1) {
+            return [
+                'is_free' => false,
+                'message' => 'This restaurant is always paid',
+                'type' => 'warning'
+            ];
+        }
+
+        // If always_paid_free is null, check hotel's free count system
+        if ($this->isAlwaysFree()) {
+            return [
+                'is_free' => true,
+                'message' => 'All reservations at this hotel are free',
+                'type' => 'success'
+            ];
+        }
+
+        if ($this->isAlwaysPaid()) {
+            return [
+                'is_free' => false,
+                'message' => 'All reservations at this hotel require payment',
+                'type' => 'warning'
+            ];
+        }
+
+        $remainingFree = $this->getRemainingFreeReservations($roomNumber);
+        if ($remainingFree <= 0) {
+            return [
+                'is_free' => false,
+                'message' => "You have used all {$this->free_count} free reservations. Additional reservations will require payment.",
+                'type' => 'warning'
+            ];
+        }
+
+        return [
+            'is_free' => true,
+            'message' => "You have {$remainingFree} of {$this->free_count} free reservations remaining",
+            'type' => 'info'
+        ];
+    }
+    
+    /**
      * Check if a restaurant is restricted for this hotel
      */
     public function isRestaurantRestricted($restaurantId)
     {
-        if (empty($this->restricted_restaurants)) {
-            return false;
+        if ($this->restricted_restaurants === 0) {
+            return false; // No restrictions
         }
         
-        $restrictedRestaurants = explode(',', $this->restricted_restaurants);
-        return in_array($restaurantId, $restrictedRestaurants);
+        $restaurant = Restaurant::find($restaurantId);
+        if (!$restaurant) {
+            return true; // Restaurant not found, consider it restricted
+        }
+        
+        if ($this->restricted_restaurants === 1) {
+            // Only allow restaurants from this hotel
+            return $restaurant->hotel_id !== $this->hotel_id;
+        }
+        
+        if ($this->restricted_restaurants === 2) {
+            // Allow all restaurants but mark as paid for cross-hotel
+            return $restaurant->hotel_id !== $this->hotel_id;
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Get the restriction type for a restaurant
+     * Returns:
+     * 0 - No restrictions
+     * 1 - Restricted to hotel's restaurants only
+     * 2 - Cross-hotel allowed but paid
+     */
+    public function getRestaurantRestrictionType($restaurantId)
+    {
+        if ($this->restricted_restaurants === 0) {
+            return 0; // No restrictions
+        }
+        
+        $restaurant = Restaurant::find($restaurantId);
+        if (!$restaurant) {
+            return 1; // Restaurant not found, consider it restricted
+        }
+        
+        if ($restaurant->hotel_id === $this->hotel_id) {
+            return 0; // Same hotel, no restrictions
+        }
+        
+        return $this->restricted_restaurants; // Return the restriction type (1 or 2)
     }
     
     /**
