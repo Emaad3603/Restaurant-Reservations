@@ -5,6 +5,25 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * 
+ *
+ * @property int $restaurant_translations_id
+ * @property int|null $restaurants_id
+ * @property string|null $language_code
+ * @property string|null $cuisine
+ * @property string|null $about
+ * @property-read \App\Models\Restaurant|null $restaurant
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RestaurantTranslation newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RestaurantTranslation newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RestaurantTranslation query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RestaurantTranslation whereAbout($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RestaurantTranslation whereCuisine($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RestaurantTranslation whereLanguageCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RestaurantTranslation whereRestaurantTranslationsId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RestaurantTranslation whereRestaurantsId($value)
+ * @mixin \Eloquent
+ */
 class RestaurantTranslation extends Model
 {
     use HasFactory;

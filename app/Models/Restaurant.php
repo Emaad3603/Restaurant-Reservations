@@ -5,6 +5,48 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * 
+ *
+ * @property int $restaurants_id
+ * @property int|null $company_id
+ * @property string|null $name
+ * @property int|null $capacity
+ * @property string|null $created_at
+ * @property int $active
+ * @property int|null $hotel_id
+ * @property string|null $logo_url
+ * @property int|null $always_paid_free
+ * @property string|null $created_by
+ * @property string|null $updated_at
+ * @property string|null $updated_by
+ * @property-read \App\Models\Company|null $company
+ * @property-read \App\Models\Hotel|null $hotel
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\MealType> $mealTypes
+ * @property-read int|null $meal_types_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Menu> $menus
+ * @property-read int|null $menus_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Reservation> $reservations
+ * @property-read int|null $reservations_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RestaurantTranslation> $translations
+ * @property-read int|null $translations_count
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Restaurant newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Restaurant newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Restaurant query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Restaurant whereActive($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Restaurant whereAlwaysPaidFree($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Restaurant whereCapacity($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Restaurant whereCompanyId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Restaurant whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Restaurant whereCreatedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Restaurant whereHotelId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Restaurant whereLogoUrl($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Restaurant whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Restaurant whereRestaurantsId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Restaurant whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Restaurant whereUpdatedBy($value)
+ * @mixin \Eloquent
+ */
 class Restaurant extends Model
 {
     use HasFactory;

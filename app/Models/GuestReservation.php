@@ -5,6 +5,38 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * 
+ *
+ * @property int $guest_reservations_id
+ * @property string $reservation_id
+ * @property string $room_number
+ * @property string $arrival_date
+ * @property string $departure_date
+ * @property int|null $pax
+ * @property string $status
+ * @property int|null $hotel_id
+ * @property int|null $company_id
+ * @property string|null $board_type
+ * @property-read \App\Models\Company|null $company
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Guest> $guestDetails
+ * @property-read int|null $guest_details_count
+ * @property-read \App\Models\Hotel|null $hotel
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GuestReservation newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GuestReservation newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GuestReservation query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GuestReservation whereArrivalDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GuestReservation whereBoardType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GuestReservation whereCompanyId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GuestReservation whereDepartureDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GuestReservation whereGuestReservationsId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GuestReservation whereHotelId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GuestReservation wherePax($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GuestReservation whereReservationId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GuestReservation whereRoomNumber($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GuestReservation whereStatus($value)
+ * @mixin \Eloquent
+ */
 class GuestReservation extends Model
 {
     use HasFactory;

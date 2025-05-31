@@ -11,8 +11,14 @@ use App\Models\MenuCategory;
 use App\Models\RestaurantPricingTime;
 use App\Models\Menu;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Response;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
+use Illuminate\Http\Request as HttpRequest;
+use Illuminate\Database\Eloquent\Model;
 
 class RestaurantController extends Controller
 {
@@ -24,13 +30,18 @@ class RestaurantController extends Controller
     public function index()
     {
         // Check if hotel and guest information is selected
-        if (!session('hotel_id') || !session('guest_reservation_id')) {
+        if (!Request::session()->has('hotel_id') || !Request::session()->has('guest_reservation_id')) {
             return redirect()->route('hotels.index')
                 ->with('error', 'Please select a hotel and verify your identity first.');
         }
         
-        $hotel = Hotel::find(session('hotel_id'));
-        $roomNumber = session('room_number');
+        $hotel = Hotel::find(Request::session()->get('hotel_id'));
+        $roomNumber = Request::session()->get('room_number');
+        $guestReservationId = Request::session()->get('guest_reservation_id');
+        $guestReservation = \App\Models\GuestReservation::find($guestReservationId);
+        $guestBoardType = $guestReservation ? $guestReservation->board_type : null;
+        $guestHotelId = $guestReservation ? $guestReservation->hotel_id : null;
+        $companyId = $hotel->company_id;
         
         // Get restaurants based on hotel's restriction settings
         $restaurants = Restaurant::where('active', 1)
@@ -41,14 +52,96 @@ class RestaurantController extends Controller
                 }
             })
             ->get();
-            
+        
+        // Determine free/paid status for each restaurant
+        $restaurantStatuses = [];
+        foreach ($restaurants as $restaurant) {
+            $isSameHotel = $restaurant->hotel_id == $guestHotelId;
+            $status = [
+                'free_with_board_type' => false,
+                'free' => false,
+                'paid' => false,
+                'reason' => ''
+            ];
+            if ($guestBoardType && $isSameHotel) {
+                // Log the type and value of guestBoardType
+                \Log::info('GuestBoardTypeDebug', [
+                    'guestBoardType' => $guestBoardType,
+                    'type' => gettype($guestBoardType)
+                ]);
+                // Fetch all board_type_rules for this board_type
+                $allBoardRules = \DB::table('board_type_rules')
+                    ->where('board_type_rules_id', $guestBoardType)
+                    ->get();
+                \Log::info('AllBoardTypeRules', [
+                    'guestBoardType' => $guestBoardType,
+                    'allBoardRules' => $allBoardRules
+                ]);
+                // Check board_type_rules for this hotel
+                $boardRule = \DB::table('board_type_rules')
+                    ->where('company_id', $companyId)
+                    ->where('hotel_id', $restaurant->hotel_id)
+                    ->where('board_type_rules_id', $guestBoardType)
+                    ->first();
+                $freeCount = $boardRule ? $boardRule->free_count : 0;
+                $hotelFreeCount = $hotel->free_count ?? 0;
+                $maxFree = $freeCount + $hotelFreeCount;
+                $guestReservationCount = \DB::table('reservations')
+                    ->where('guest_reservations_id', $guestReservationId)
+                    ->count();
+                \Log::info('BoardTypeCheck', [
+                    'restaurant_id' => $restaurant->restaurants_id,
+                    'restaurant_name' => $restaurant->name,
+                    'isSameHotel' => $isSameHotel,
+                    'guestBoardType' => $guestBoardType,
+                    'boardRule' => $boardRule,
+                    'freeCount' => $freeCount,
+                    'hotelFreeCount' => $hotelFreeCount,
+                    'maxFree' => $maxFree,
+                    'guestReservationCount' => $guestReservationCount
+                ]);
+                if ($guestReservationCount < $maxFree) {
+                    $status['free_with_board_type'] = true;
+                    $status['reason'] = 'Free with your board type';
+                } else {
+                    $status['paid'] = true;
+                    $status['reason'] = 'Exceeded board type free reservations';
+                }
+            } else {
+                // Fallback to old logic
+                if ($restaurant->always_paid_free === 0) {
+                    $status['free'] = true;
+                    $status['reason'] = 'Always free';
+                } elseif ($restaurant->always_paid_free === 1) {
+                    $status['paid'] = true;
+                    $status['reason'] = 'Always paid';
+                } else {
+                    // Use hotel free_count logic
+                    $remainingFreeReservations = $hotel->getRemainingFreeReservations($roomNumber);
+                    \Log::info('HotelFreeCountCheck', [
+                        'restaurant_id' => $restaurant->restaurants_id,
+                        'restaurant_name' => $restaurant->name,
+                        'remainingFreeReservations' => $remainingFreeReservations
+                    ]);
+                    if ($remainingFreeReservations > 0) {
+                        $status['free'] = true;
+                        $status['reason'] = 'Free reservations remaining';
+                    } else {
+                        $status['paid'] = true;
+                        $status['reason'] = 'No free reservations remaining';
+                    }
+                }
+            }
+            $restaurantStatuses[$restaurant->restaurants_id] = $status;
+        }
+        
         // Get all meal types with translations
         $mealTypes = MealType::with(['translations' => function($query) {
                 $query->where('language_code', 'en');
             }])
             ->where('company_id', $hotel->company_id)
             ->get();
-            
+        
         // For each meal type, get its translated name
         foreach ($mealTypes as $mealType) {
             $translation = $mealType->getTranslation('en');
@@ -59,10 +152,36 @@ class RestaurantController extends Controller
             }
         }
         
-        // Get remaining free reservations
-        $remainingFreeReservations = $hotel->getRemainingFreeReservations($roomNumber);
+        // Calculate correct remaining free reservations for the guest
+        $remainingFreeReservations = null;
+        if ($guestBoardType && $guestHotelId == $hotel->hotel_id) {
+            $boardRule = \DB::table('board_type_rules')
+                ->where('company_id', $companyId)
+                ->where('board_type_rules_id', $guestBoardType)
+                ->first();
+            \Log::info('BoardTypeRuleQuery', [
+                'query_conditions' => [
+                    'company_id' => $companyId,
+                    'board_type_rules_id' => $guestBoardType
+                ],
+                'boardRule' => $boardRule,
+                'sql' => \DB::table('board_type_rules')
+                    ->where('company_id', $companyId)
+                    ->where('board_type_rules_id', $guestBoardType)
+                    ->toSql()
+            ]);
+            $freeCount = $boardRule ? $boardRule->free_count : 0;
+            $hotelFreeCount = $hotel->free_count ?? 0;
+            $maxFree = $freeCount + $hotelFreeCount;
+            $guestReservationCount = \DB::table('reservations')
+                ->where('guest_reservations_id', $guestReservationId)
+                ->count();
+            $remainingFreeReservations = max($maxFree - $guestReservationCount, 0);
+        } else {
+            $remainingFreeReservations = $hotel->getRemainingFreeReservations($roomNumber);
+        }
         
-        return view('restaurants.index', compact('restaurants', 'mealTypes', 'remainingFreeReservations', 'hotel', 'roomNumber'));
+        return View::make('restaurants.index', compact('restaurants', 'mealTypes', 'remainingFreeReservations', 'hotel', 'roomNumber', 'restaurantStatuses'));
     }
     
     /**
@@ -77,8 +196,8 @@ class RestaurantController extends Controller
             'meal_type_id' => 'required|exists:meal_types,meal_types_id'
         ]);
         
-        $hotel = Hotel::find(session('hotel_id'));
-        $roomNumber = session('room_number');
+        $hotel = Hotel::find(Session::get('hotel_id'));
+        $roomNumber = Session::get('room_number');
         
         // Get restaurants that serve the selected meal type
         $restaurants = $hotel->getAvailableRestaurants()
@@ -91,7 +210,7 @@ class RestaurantController extends Controller
         // Get remaining free reservations
         $remainingFreeReservations = $hotel->getRemainingFreeReservations($roomNumber);
         
-        return view('restaurants.index', compact('restaurants', 'remainingFreeReservations'));
+        return View::make('restaurants.index', compact('restaurants', 'remainingFreeReservations'));
     }
     
     /**
@@ -103,28 +222,51 @@ class RestaurantController extends Controller
     public function showMenu($restaurantId)
     {
         $restaurant = Restaurant::findOrFail($restaurantId);
-        $hotel = Hotel::find(session('hotel_id'));
+        $hotel = Hotel::find(Session::get('hotel_id'));
         
         // Check if restaurant is restricted
         if ($hotel->isRestaurantRestricted($restaurantId)) {
-            return redirect()->route('restaurants.index')
+            return Redirect::route('restaurants.index')
                 ->with('error', 'This restaurant is not available for your hotel.');
         }
         
         // Get restaurant translation
         $translation = $restaurant->getTranslation('en');
         
-        // Get menu categories with translations
+        // Get available pricing times for the restaurant
+        $pricingTimes = RestaurantPricingTime::where('restaurant_id', $restaurantId)
+            ->where('hotel_id', $hotel->hotels_id)
+            ->where(function($query) {
+                $query->whereNull('year')
+                    ->orWhere('year', '>=', date('Y'));
+            })
+            ->where(function($query) {
+                $query->whereNull('month')
+                    ->orWhere('month', '>=', date('m'));
+            })
+            ->where(function($query) {
+                $query->whereNull('day')
+                    ->orWhere('day', '>=', date('d'));
+            })
+            ->orderBy('time')
+            ->get();
+        
+        // Get all menus for the company
+        $menus = Menu::where('company_id', $restaurant->company_id)->get();
+        
+        // Fetch menu categories based on menus_id
         $menuCategories = MenuCategory::with(['translations' => function($query) {
                 $query->where('language_code', 'en');
             }])
-            ->where('company_id', $restaurant->company_id)
+            ->whereIn('menus_id', $menus->pluck('menus_id'))
             ->get();
-            
-        // Get all menus for the company
-        $menus = Menu::where('company_id', $restaurant->company_id)->get();
-            
-        return view('restaurants.menu', compact('restaurant', 'translation', 'menuCategories', 'menus'));
+        
+        // Add logging for debugging
+        \Log::info('Menu categories:', ['categories' => $menuCategories]);
+        \Log::info('Menus:', ['menus' => $menus]);
+        \Log::info('Translation:', ['translation' => $translation]);
+        
+        return View::make('restaurants.menu', compact('restaurant', 'translation', 'menuCategories', 'menus', 'pricingTimes'));
     }
     
     /**
@@ -135,15 +277,100 @@ class RestaurantController extends Controller
      */
     public function showReservationForm($restaurantId)
     {
+        \Log::info('showReservationForm called');
         $restaurant = Restaurant::findOrFail($restaurantId);
-        $hotel = Hotel::find(session('hotel_id'));
-        $roomNumber = session('room_number');
-        $guestReservationId = session('guest_reservation_id');
+        $hotel = Hotel::find(Session::get('hotel_id'));
+        $roomNumber = Session::get('room_number');
+        $guestReservationId = Session::get('guest_reservation_id');
+        $guestReservation = \App\Models\GuestReservation::find($guestReservationId);
+        $guestBoardType = $guestReservation ? $guestReservation->board_type : null;
+        $guestHotelId = $guestReservation ? $guestReservation->hotel_id : null;
+        $companyId = $hotel->company_id;
+        // Add debug logging for board type logic
+        \Log::info('BoardTypeLogicDebug', [
+            'guestBoardType' => $guestBoardType,
+            'guestHotelId' => $guestHotelId,
+            'restaurantHotelId' => $restaurant->hotel_id,
+            'guestReservationId' => $guestReservationId
+        ]);
         
         // Check if restaurant is restricted
         if ($hotel->isRestaurantRestricted($restaurantId)) {
-            return redirect()->route('restaurants.index')
+            return Redirect::route('restaurants.index')
                 ->with('error', 'This restaurant is not available for your hotel.');
+        }
+        
+        // Determine free/paid status for this reservation
+        $freePaidStatus = [
+            'free_with_board_type' => false,
+            'free' => false,
+            'paid' => false,
+            'reason' => ''
+        ];
+        $guestReservationCount = \DB::table('reservations')
+            ->where('guest_reservations_id', $guestReservationId)
+            ->count();
+        if ($guestBoardType && $guestHotelId == $restaurant->hotel_id) {
+            $boardRule = \DB::table('board_type_rules')
+                ->where('company_id', $companyId)
+                ->where('board_type_rules_id', $guestBoardType)
+                ->first();
+            \Log::info('BoardTypeRuleQuery', [
+                'query_conditions' => [
+                    'company_id' => $companyId,
+                    'board_type_rules_id' => $guestBoardType
+                ],
+                'boardRule' => $boardRule,
+                'sql' => \DB::table('board_type_rules')
+                    ->where('company_id', $companyId)
+                    ->where('board_type_rules_id', $guestBoardType)
+                    ->toSql()
+            ]);
+            $freeCount = $boardRule ? $boardRule->free_count : 0;
+            $hotelFreeCount = $hotel->free_count ?? 0;
+            $maxFree = $freeCount + $hotelFreeCount;
+            if ($guestReservationCount < $maxFree) {
+                $freePaidStatus['free_with_board_type'] = true;
+                $freePaidStatus['reason'] = 'Free with your board type';
+            } else {
+                $freePaidStatus['paid'] = true;
+                $freePaidStatus['reason'] = 'Exceeded board type free reservations';
+            }
+        } else {
+            if ($restaurant->always_paid_free === 0) {
+                $freePaidStatus['free'] = true;
+                $freePaidStatus['reason'] = 'Always free';
+            } elseif ($restaurant->always_paid_free === 1) {
+                $freePaidStatus['paid'] = true;
+                $freePaidStatus['reason'] = 'Always paid';
+            } else {
+                $remainingFreeReservations = $hotel->getRemainingFreeReservations($roomNumber);
+                if ($remainingFreeReservations > 0) {
+                    $freePaidStatus['free'] = true;
+                    $freePaidStatus['reason'] = 'Free reservations remaining';
+                } else {
+                    $freePaidStatus['paid'] = true;
+                    $freePaidStatus['reason'] = 'No free reservations remaining';
+                }
+            }
+        }
+        
+        // Calculate remaining free reservations for compatibility with the view
+        $remainingFreeReservations = null;
+        if ($guestBoardType && $guestHotelId == $restaurant->hotel_id) {
+            $boardRule = \DB::table('board_type_rules')
+                ->where('company_id', $companyId)
+                ->where('board_type_rules_id', $guestBoardType)
+                ->first();
+            $freeCount = $boardRule ? $boardRule->free_count : 0;
+            $hotelFreeCount = $hotel->free_count ?? 0;
+            $maxFree = $freeCount + $hotelFreeCount;
+            $guestReservationCount = \DB::table('reservations')
+                ->where('guest_reservations_id', $guestReservationId)
+                ->count();
+            $remainingFreeReservations = max($maxFree - $guestReservationCount, 0);
+        } else {
+            $remainingFreeReservations = $hotel->getRemainingFreeReservations($roomNumber);
         }
         
         // Get available time slots
@@ -164,12 +391,6 @@ class RestaurantController extends Controller
             ->orderBy('time')
             ->get();
         
-        // Get remaining free reservations (only if always_paid_free is null)
-        $remainingFreeReservations = null;
-        if (is_null($restaurant->always_paid_free)) {
-            $remainingFreeReservations = $hotel->getRemainingFreeReservations($roomNumber);
-        }
-        
         // Get guests from the room
         $guests = DB::table('guest_details')
             ->join('guest_reservations', 'guest_details.guest_reservations_id', '=', 'guest_reservations.guest_reservations_id')
@@ -177,7 +398,7 @@ class RestaurantController extends Controller
             ->where('guest_reservations.room_number', $roomNumber)
             ->get();
         
-        return view('restaurants.reserve', compact('restaurant', 'pricingTimes', 'remainingFreeReservations', 'guests', 'hotel'));
+        return View::make('restaurants.reserve', compact('restaurant', 'pricingTimes', 'remainingFreeReservations', 'guests', 'hotel', 'freePaidStatus'));
     }
 
     /**
@@ -196,7 +417,7 @@ class RestaurantController extends Controller
         $date = Carbon::parse($request->date);
         
         $times = RestaurantPricingTime::where('restaurant_id', $request->restaurant_id)
-            ->where('hotel_id', session('hotel_id'))
+            ->where('hotel_id', Session::get('hotel_id'))
             ->where(function($query) use ($date) {
                 $query->whereNull('year')
                     ->orWhere('year', $date->year);
@@ -212,7 +433,7 @@ class RestaurantController extends Controller
             ->orderBy('time')
             ->get(['time']);
 
-        return response()->json([
+        return Response::json([
             'success' => true,
             'times' => $times
         ]);

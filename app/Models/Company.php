@@ -5,6 +5,34 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * 
+ *
+ * @property int $company_id
+ * @property string|null $company_name
+ * @property int $currency_id
+ * @property string $company_uuid
+ * @property string|null $logo_url
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\GuestReservation> $guestReservations
+ * @property-read int|null $guest_reservations_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Hotel> $hotels
+ * @property-read int|null $hotels_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\MealType> $mealTypes
+ * @property-read int|null $meal_types_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Reservation> $reservations
+ * @property-read int|null $reservations_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Restaurant> $restaurants
+ * @property-read int|null $restaurants_count
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Company newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Company newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Company query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Company whereCompanyId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Company whereCompanyName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Company whereCompanyUuid($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Company whereCurrencyId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Company whereLogoUrl($value)
+ * @mixin \Eloquent
+ */
 class Company extends Model
 {
     use HasFactory;

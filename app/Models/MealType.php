@@ -5,6 +5,37 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * 
+ *
+ * @property int $meal_types_id
+ * @property int|null $company_id
+ * @property string|null $created_at
+ * @property string|null $created_by
+ * @property string|null $updated_at
+ * @property string|null $updated_by
+ * @property int|null $active
+ * @property string|null $label
+ * @property-read \App\Models\Company|null $company
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Reservation> $reservations
+ * @property-read int|null $reservations_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Restaurant> $restaurants
+ * @property-read int|null $restaurants_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\MealTypeTranslation> $translations
+ * @property-read int|null $translations_count
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MealType newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MealType newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MealType query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MealType whereActive($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MealType whereCompanyId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MealType whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MealType whereCreatedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MealType whereLabel($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MealType whereMealTypesId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MealType whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MealType whereUpdatedBy($value)
+ * @mixin \Eloquent
+ */
 class MealType extends Model
 {
     use HasFactory;

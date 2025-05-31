@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 24, 2025 at 07:35 PM
+-- Generation Time: May 31, 2025 at 11:54 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -1218,8 +1218,18 @@ CREATE TABLE `admin_privileges` (
   `meal_types_tab` tinyint(4) DEFAULT NULL,
   `restaurants_tab` tinyint(4) DEFAULT NULL,
   `restaurant_times_tab` tinyint(4) DEFAULT NULL,
-  `menu_links_tab` tinyint(4) DEFAULT NULL
+  `menu_links_tab` tinyint(4) DEFAULT NULL,
+  `reservations_tab` tinyint(1) NOT NULL DEFAULT 0,
+  `reports_tab` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+--
+-- Dumping data for table `admin_privileges`
+--
+
+INSERT INTO `admin_privileges` (`admin_privileges_id`, `admin_users_id`, `hotels_tab`, `currencies_tab`, `meal_types_tab`, `restaurants_tab`, `restaurant_times_tab`, `menu_links_tab`, `reservations_tab`, `reports_tab`) VALUES
+(2, 3, 1, 1, 1, 1, 1, 1, 0, 0),
+(4, 4, 1, 0, 0, 0, 1, 1, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -1252,6 +1262,14 @@ CREATE TABLE `admin_users` (
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
+--
+-- Dumping data for table `admin_users`
+--
+
+INSERT INTO `admin_users` (`admin_users_id`, `user_name`, `email`, `phone`, `display_name`, `company_id`, `admin`, `password`, `created_at`, `updated_at`) VALUES
+(3, 'admin', 'admin@example.com', NULL, 'Administrator', 3, 1, '$2y$12$R1CpVwdJrbwWsoo/HSPUIuqV5LaRQZaau0c7ubY9fs87DV1WGkHWa', '2025-05-26 18:42:05', '2025-05-26 18:42:05'),
+(4, 'testuser', 'user@example.com', '01069766948', 'testUser', 3, 0, '$2y$12$XoH8yDb8qmOsjS3PWAFIZu7qiCRWdPKaj9dp4oTZ8UiIgXEGFvsAu', '2025-05-31 11:18:37', '2025-05-31 11:18:37');
+
 -- --------------------------------------------------------
 
 --
@@ -1267,6 +1285,13 @@ CREATE TABLE `board_type_rules` (
   `free_count` int(11) DEFAULT 0,
   `hotel_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+--
+-- Dumping data for table `board_type_rules`
+--
+
+INSERT INTO `board_type_rules` (`board_type_rules_id`, `board_name`, `board_id`, `company_id`, `created_at`, `free_count`, `hotel_id`) VALUES
+(2, 'all inclusive', '1', 3, '2025-05-31 17:05:45', 6, 18);
 
 -- --------------------------------------------------------
 
@@ -1482,13 +1507,8 @@ CREATE TABLE `items` (
 --
 
 INSERT INTO `items` (`items_id`, `company_id`, `menu_categories_id`, `menu_subcategories_id`, `items_transelation_id`, `created_at`, `created_by`, `updated_at`, `updated_by`, `label`) VALUES
-(1, 3, 1, 1, NULL, NULL, 'system', NULL, NULL, 'Bruschetta'),
-(2, 3, 1, 2, NULL, NULL, 'system', NULL, NULL, 'Caesar Salad'),
-(3, 3, 2, 3, NULL, NULL, 'system', NULL, NULL, 'Grilled Salmon'),
-(4, 3, 2, 4, NULL, NULL, 'system', NULL, NULL, 'Beef Tenderloin'),
-(5, 3, 3, 5, NULL, NULL, 'system', NULL, NULL, 'Chocolate Cake'),
-(6, 3, 4, 6, NULL, NULL, 'system', NULL, NULL, 'Espresso'),
-(7, 3, 4, 7, NULL, NULL, 'system', NULL, NULL, 'Fresh Orange Juice');
+(17, 3, 10, 8, NULL, '2025-05-31 17:25:50', 'admin', NULL, NULL, 'omellete with toast'),
+(18, 3, 10, 8, NULL, '2025-05-31 17:28:21', 'admin', NULL, NULL, 'Chicken');
 
 -- --------------------------------------------------------
 
@@ -1503,19 +1523,6 @@ CREATE TABLE `items_translation` (
   `language_code` varchar(45) DEFAULT NULL,
   `items_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
-
---
--- Dumping data for table `items_translation`
---
-
-INSERT INTO `items_translation` (`items_translation_id`, `name`, `description`, `language_code`, `items_id`) VALUES
-(15, 'Bruschetta', 'Delicious Bruschetta', 'en', 1),
-(16, 'Caesar Salad', 'Delicious Caesar Salad', 'en', 2),
-(17, 'Grilled Salmon', 'Delicious Grilled Salmon', 'en', 3),
-(18, 'Beef Tenderloin', 'Delicious Beef Tenderloin', 'en', 4),
-(19, 'Chocolate Cake', 'Delicious Chocolate Cake', 'en', 5),
-(20, 'Espresso', 'Delicious Espresso', 'en', 6),
-(21, 'Fresh Orange Juice', 'Delicious Fresh Orange Juice', 'en', 7);
 
 -- --------------------------------------------------------
 
@@ -1556,7 +1563,6 @@ CREATE TABLE `meal_types` (
 
 INSERT INTO `meal_types` (`meal_types_id`, `company_id`, `created_at`, `created_by`, `updated_at`, `updated_by`, `active`, `label`) VALUES
 (1, 3, '2025-05-19 13:08:51', 'system', NULL, NULL, 1, 'Breakfast'),
-(2, 3, '2025-05-19 13:08:51', 'system', NULL, NULL, 1, 'Lunch'),
 (3, 3, '2025-05-19 13:08:51', 'system', NULL, NULL, 1, 'Dinner'),
 (18, 3, '2025-05-15 11:06:10', NULL, NULL, NULL, 1, 'B'),
 (19, 3, '2025-05-15 11:06:10', NULL, NULL, NULL, 1, 'L'),
@@ -1586,7 +1592,6 @@ INSERT INTO `meal_types_translation` (`meal_types_translation_id`, `meal_types_i
 (9, 20, 'Dinner', 'en'),
 (10, 21, 'Brunch', 'en'),
 (11, 1, 'Breakfast', 'en'),
-(12, 2, 'Lunch', 'en'),
 (13, 3, 'Dinner', 'en');
 
 -- --------------------------------------------------------
@@ -1657,7 +1662,17 @@ INSERT INTO `menus_items` (`menus_items_id`, `items_id`, `price`, `currencies_id
 (28, 4, NULL, 9, '2025-05-19 13:10:45', 'system', NULL, NULL, 3),
 (29, 5, NULL, 9, '2025-05-19 13:10:45', 'system', NULL, NULL, 3),
 (30, 6, NULL, 9, '2025-05-19 13:10:45', 'system', NULL, NULL, 3),
-(31, 7, NULL, 9, '2025-05-19 13:10:45', 'system', NULL, NULL, 3);
+(31, 7, NULL, 9, '2025-05-19 13:10:45', 'system', NULL, NULL, 3),
+(32, 9, '50', 9, '2025-05-31 16:17:11', '3', NULL, '3', 1),
+(33, 10, '40', 9, '2025-05-31 16:29:29', '3', NULL, '3', 1),
+(34, 11, '50', 9, '2025-05-31 16:32:59', '3', NULL, '3', 1),
+(35, 12, '50', 9, '2025-05-31 16:37:18', '3', NULL, '3', 1),
+(36, 13, '40', 9, '2025-05-31 16:47:21', '3', NULL, '3', 1),
+(37, 14, '40', 9, '2025-05-31 16:50:21', '3', NULL, '3', 1),
+(38, 15, '50', 9, '2025-05-31 16:50:43', '3', NULL, '3', 1),
+(39, 16, '40', 9, '2025-05-31 16:54:52', '3', NULL, '3', 1),
+(40, 17, '40', 9, '2025-05-31 20:25:50', '3', NULL, '3', 1),
+(41, 18, '80', 9, '2025-05-31 20:28:21', '3', NULL, '3', 1);
 
 -- --------------------------------------------------------
 
@@ -1673,18 +1688,17 @@ CREATE TABLE `menu_categories` (
   `updated_at` timestamp NULL DEFAULT NULL,
   `updated_by` varchar(255) DEFAULT NULL,
   `label` longtext DEFAULT NULL,
-  `background_url` longtext DEFAULT NULL
+  `background_url` longtext DEFAULT NULL,
+  `menus_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 --
 -- Dumping data for table `menu_categories`
 --
 
-INSERT INTO `menu_categories` (`menu_categories_id`, `company_id`, `created_at`, `created_by`, `updated_at`, `updated_by`, `label`, `background_url`) VALUES
-(1, 3, '2025-05-19 13:09:42', 'system', NULL, NULL, 'Appetizers', NULL),
-(2, 3, '2025-05-19 13:09:42', 'system', NULL, NULL, 'Main Courses', NULL),
-(3, 3, '2025-05-19 13:09:42', 'system', NULL, NULL, 'Desserts', NULL),
-(4, 3, '2025-05-19 13:09:42', 'system', NULL, NULL, 'Beverages', NULL);
+INSERT INTO `menu_categories` (`menu_categories_id`, `company_id`, `created_at`, `created_by`, `updated_at`, `updated_by`, `label`, `background_url`, `menus_id`) VALUES
+(9, NULL, '2025-05-31 12:16:06', NULL, '2025-05-31 12:16:06', NULL, 'appetizers', NULL, NULL),
+(10, NULL, '2025-05-31 12:22:35', NULL, '2025-05-31 12:22:35', NULL, 'hot appetizers', NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -1698,16 +1712,6 @@ CREATE TABLE `menu_categories_translation` (
   `language_code` varchar(45) DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
-
---
--- Dumping data for table `menu_categories_translation`
---
-
-INSERT INTO `menu_categories_translation` (`menu_categories_translation_id`, `menu_categories_id`, `language_code`, `name`) VALUES
-(13, 1, 'en', 'Appetizers'),
-(14, 2, 'en', 'Main Courses'),
-(15, 3, 'en', 'Desserts'),
-(16, 4, 'en', 'Beverages');
 
 -- --------------------------------------------------------
 
@@ -1749,13 +1753,7 @@ CREATE TABLE `menu_subcategories` (
 --
 
 INSERT INTO `menu_subcategories` (`menu_subcategories_id`, `menu_categories_id`, `company_id`, `created_at`, `created_by`, `updated_at`, `updated_by`, `label`, `background_url`) VALUES
-(1, 1, 3, '2025-05-19 13:10:09', 'system', NULL, NULL, 'Hot Appetizers', NULL),
-(2, 1, 3, '2025-05-19 13:10:09', 'system', NULL, NULL, 'Cold Appetizers', NULL),
-(3, 2, 3, '2025-05-19 13:10:09', 'system', NULL, NULL, 'Seafood', NULL),
-(4, 2, 3, '2025-05-19 13:10:09', 'system', NULL, NULL, 'Meat', NULL),
-(5, 3, 3, '2025-05-19 13:10:09', 'system', NULL, NULL, 'Cakes', NULL),
-(6, 4, 3, '2025-05-19 13:10:09', 'system', NULL, NULL, 'Hot Drinks', NULL),
-(7, 4, 3, '2025-05-19 13:10:09', 'system', NULL, NULL, 'Cold Drinks', NULL);
+(8, 10, 3, '2025-05-31 12:40:45', '3', '2025-05-31 12:40:45', '3', 'omlette', NULL);
 
 -- --------------------------------------------------------
 
@@ -1769,19 +1767,6 @@ CREATE TABLE `menu_subcategories_translation` (
   `language_code` varchar(45) DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
-
---
--- Dumping data for table `menu_subcategories_translation`
---
-
-INSERT INTO `menu_subcategories_translation` (`menu_subcategories_translation_id`, `menu_subcategories_id`, `language_code`, `name`) VALUES
-(13, 1, 'en', 'Hot Appetizers'),
-(14, 2, 'en', 'Cold Appetizers'),
-(15, 3, 'en', 'Seafood'),
-(16, 4, 'en', 'Meat'),
-(17, 5, 'en', 'Cakes'),
-(18, 6, 'en', 'Hot Drinks'),
-(19, 7, 'en', 'Cold Drinks');
 
 -- --------------------------------------------------------
 
@@ -1826,19 +1811,6 @@ CREATE TABLE `reservations` (
   `menus_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
---
--- Dumping data for table `reservations`
---
-
-INSERT INTO `reservations` (`reservations_id`, `guest_reservations_id`, `room_number`, `pax`, `names`, `restaurant_id`, `day`, `time`, `company_id`, `guest_hotel_id`, `restaurant_hotel_id`, `canceled`, `ended`, `created_at`, `qrcode`, `created_by`, `canceled_by`, `canceled_at`, `currencies_id`, `price`, `exchange_rate`, `paid`, `always_paid_free`, `taxes`, `discounts`, `original_price`, `sub_total`, `after_tax`, `total_ammount_due`, `per_person`, `reservation_by_room`, `time_zone`, `meal_types_id`, `menus_id`) VALUES
-(55, 3, '202', 4, 'Guest Person1, Guest Person2, Guest Person3, Guest Person4', 17, '2025-05-16', '18:00:00', 3, 18, 19, 0, 0, '2025-05-15 14:06:10', 'QR6825caa24bad3', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 18, NULL),
-(56, 8, '203', 1, 'Guest Person1', 20, '2025-05-16', '18:00:00', 3, 20, 20, 0, 0, '2025-05-15 14:06:10', 'QR6825caa24bc5a', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 21, NULL),
-(57, 2, '203', 2, 'Guest Person1, Guest Person2', 14, '2025-05-18', '18:00:00', 3, 18, 18, 0, 0, '2025-05-15 14:06:10', 'QR6825caa24bdec', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 20, NULL),
-(59, 4, NULL, 1, NULL, 14, '2025-05-20', '12:30:00', 1, NULL, NULL, 0, 0, '2025-05-20 10:06:18', 'vFaroM4H8N9ys9yDaTN4', 'system', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'UTC', 1, NULL),
-(60, 4, NULL, 1, NULL, 14, '2025-05-24', '13:00:00', 1, NULL, NULL, 0, 0, '2025-05-24 16:06:25', 'QyAnPSQHXKTBUk8cpNmS', 'system', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'UTC', 19, NULL),
-(61, 4, NULL, 1, NULL, 14, '2025-05-24', '14:00:00', 1, NULL, NULL, 0, 0, '2025-05-24 16:52:56', 'FsQ6rQ53rWfClTsmxk3b', 'system', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'UTC', 19, NULL),
-(62, 4, NULL, NULL, NULL, 14, '2025-05-24', '08:00:00', 1, NULL, NULL, 0, 0, '2025-05-24 17:25:44', 'QmTv6oVScCu2KDAfIF3J', 'system', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'UTC', 18, NULL);
-
 -- --------------------------------------------------------
 
 --
@@ -1882,11 +1854,7 @@ INSERT INTO `restaurants` (`restaurants_id`, `company_id`, `name`, `capacity`, `
 (15, 3, 'Garden Terrace', 45, '2025-05-15 11:06:10', 1, 18, 'https://cdn.pixabay.com/photo/2014/09/17/20/26/restaurant-449952_1280.jpg', 0, NULL, NULL, NULL),
 (16, 3, 'Skyline Rooftop', 50, '2025-05-15 11:06:10', 1, 18, 'https://cdn.pixabay.com/photo/2020/01/30/12/27/celebration-4805518_1280.jpg', 0, NULL, NULL, NULL),
 (17, 3, 'Ocean View Restaurant', 60, '2025-05-15 11:06:10', 1, 19, 'https://cdn.pixabay.com/photo/2018/07/14/15/27/cafe-3537801_1280.jpg', 0, NULL, NULL, NULL),
-(18, 3, 'Garden Terrace', 45, '2025-05-15 11:06:10', 1, 19, 'https://cdn.pixabay.com/photo/2014/09/17/20/26/restaurant-449952_1280.jpg', 0, NULL, NULL, NULL),
-(19, 3, 'Skyline Rooftop', 50, '2025-05-15 11:06:10', 1, 19, 'https://cdn.pixabay.com/photo/2020/01/30/12/27/celebration-4805518_1280.jpg', 0, NULL, NULL, NULL),
-(20, 3, 'Ocean View Restaurant', 60, '2025-05-15 11:06:10', 1, 20, 'https://cdn.pixabay.com/photo/2018/07/14/15/27/cafe-3537801_1280.jpg', 0, NULL, NULL, NULL),
-(21, 3, 'Garden Terrace', 45, '2025-05-15 11:06:10', 1, 20, 'https://cdn.pixabay.com/photo/2014/09/17/20/26/restaurant-449952_1280.jpg', 0, NULL, NULL, NULL),
-(22, 3, 'Skyline Rooftop', 50, '2025-05-15 11:06:10', 1, 20, 'https://cdn.pixabay.com/photo/2020/01/30/12/27/celebration-4805518_1280.jpg', 0, NULL, NULL, NULL);
+(20, 3, 'Ocean View Restaurant', 60, '2025-05-15 11:06:10', 1, 20, 'https://cdn.pixabay.com/photo/2018/07/14/15/27/cafe-3537801_1280.jpg', 0, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -1912,11 +1880,7 @@ INSERT INTO `restaurants_translations` (`restaurant_translations_id`, `restauran
 (21, 15, 'en', 'Italian', 'Authentic Italian cuisine served in a beautiful garden setting. Perfect for a romantic dinner or family gathering.'),
 (22, 16, 'en', 'International', 'Dine with a spectacular view of the city skyline. Our menu offers a variety of international dishes crafted with local ingredients.'),
 (23, 17, 'en', 'Seafood', 'Enjoy fresh seafood with a beautiful ocean view. Our restaurant offers the freshest catches prepared by world-class chefs.'),
-(24, 18, 'en', 'Italian', 'Authentic Italian cuisine served in a beautiful garden setting. Perfect for a romantic dinner or family gathering.'),
-(25, 19, 'en', 'International', 'Dine with a spectacular view of the city skyline. Our menu offers a variety of international dishes crafted with local ingredients.'),
-(26, 20, 'en', 'Seafood', 'Enjoy fresh seafood with a beautiful ocean view. Our restaurant offers the freshest catches prepared by world-class chefs.'),
-(27, 21, 'en', 'Italian', 'Authentic Italian cuisine served in a beautiful garden setting. Perfect for a romantic dinner or family gathering.'),
-(28, 22, 'en', 'International', 'Dine with a spectacular view of the city skyline. Our menu offers a variety of international dishes crafted with local ingredients.');
+(26, 20, 'en', 'Seafood', 'Enjoy fresh seafood with a beautiful ocean view. Our restaurant offers the freshest catches prepared by world-class chefs.');
 
 -- --------------------------------------------------------
 
@@ -1953,25 +1917,97 @@ CREATE TABLE `restaurant_pricing_times` (
 --
 
 INSERT INTO `restaurant_pricing_times` (`restaurant_pricing_times_id`, `company_id`, `restaurant_id`, `currency_id`, `year`, `month`, `day`, `time`, `per_person`, `price`, `created_at`, `meal_type`, `reservation_by_room`, `extra_seats`, `menu_url`, `hotel_id`, `menus_id`, `calculate_price`, `created_by`, `updated_at`, `updated_by`) VALUES
-(278, 3, 14, 9, '2025', '05', '24', '07:00:00', 1, NULL, '2025-05-24 15:34:49', '18', 1, 10, NULL, 18, NULL, 1, NULL, NULL, NULL),
-(279, 3, 14, 9, '2025', '05', '24', '07:30:00', 1, NULL, '2025-05-24 15:34:49', '18', 1, 10, NULL, 18, NULL, 1, NULL, NULL, NULL),
-(280, 3, 14, 9, '2025', '05', '24', '08:00:00', 1, NULL, '2025-05-24 15:34:49', '18', 1, 10, NULL, 18, NULL, 1, NULL, NULL, NULL),
-(281, 3, 14, 9, '2025', '05', '24', '08:30:00', 1, NULL, '2025-05-24 15:34:49', '18', 1, 10, NULL, 18, NULL, 1, NULL, NULL, NULL),
-(282, 3, 14, 9, '2025', '05', '24', '09:00:00', 1, NULL, '2025-05-24 15:34:49', '18', 1, 10, NULL, 18, NULL, 1, NULL, NULL, NULL),
-(283, 3, 14, 9, '2025', '05', '24', '09:30:00', 1, NULL, '2025-05-24 15:34:49', '18', 1, 10, NULL, 18, NULL, 1, NULL, NULL, NULL),
-(284, 3, 14, 9, '2025', '05', '24', '10:00:00', 1, NULL, '2025-05-24 15:34:49', '18', 1, 10, NULL, 18, NULL, 1, NULL, NULL, NULL),
-(285, 3, 14, 9, '2025', '05', '24', '12:00:00', 1, NULL, '2025-05-24 15:34:49', '19', 1, 10, NULL, 18, NULL, 1, NULL, NULL, NULL),
-(286, 3, 14, 9, '2025', '05', '24', '12:30:00', 1, NULL, '2025-05-24 15:34:49', '19', 1, 10, NULL, 18, NULL, 1, NULL, NULL, NULL),
-(287, 3, 14, 9, '2025', '05', '24', '13:00:00', 1, NULL, '2025-05-24 15:34:49', '19', 1, 10, NULL, 18, NULL, 1, NULL, NULL, NULL),
-(288, 3, 14, 9, '2025', '05', '24', '13:30:00', 1, NULL, '2025-05-24 15:34:49', '19', 1, 10, NULL, 18, NULL, 1, NULL, NULL, NULL),
-(289, 3, 14, 9, '2025', '05', '24', '14:00:00', 1, NULL, '2025-05-24 15:34:49', '19', 1, 10, NULL, 18, NULL, 1, NULL, NULL, NULL),
-(290, 3, 14, 9, '2025', '05', '24', '18:00:00', 1, NULL, '2025-05-24 15:34:49', '20', 1, 10, NULL, 18, NULL, 1, NULL, NULL, NULL),
-(291, 3, 14, 9, '2025', '05', '24', '18:30:00', 1, NULL, '2025-05-24 15:34:49', '20', 1, 10, NULL, 18, NULL, 1, NULL, NULL, NULL),
-(292, 3, 14, 9, '2025', '05', '24', '19:00:00', 1, NULL, '2025-05-24 15:34:49', '20', 1, 10, NULL, 18, NULL, 1, NULL, NULL, NULL),
-(293, 3, 14, 9, '2025', '05', '24', '19:30:00', 1, NULL, '2025-05-24 15:34:49', '20', 1, 10, NULL, 18, NULL, 1, NULL, NULL, NULL),
-(294, 3, 14, 9, '2025', '05', '24', '20:00:00', 1, NULL, '2025-05-24 15:34:49', '20', 1, 10, NULL, 18, NULL, 1, NULL, NULL, NULL),
-(295, 3, 14, 9, '2025', '05', '24', '20:30:00', 1, NULL, '2025-05-24 15:34:49', '20', 1, 10, NULL, 18, NULL, 1, NULL, NULL, NULL),
-(296, 3, 14, 9, '2025', '05', '24', '21:00:00', 1, NULL, '2025-05-24 15:34:49', '20', 1, 10, NULL, 18, NULL, 1, NULL, NULL, NULL);
+(298, NULL, 1, NULL, '2025', '6', '1', '07:00:00', 1, NULL, '2025-05-31 19:53:36', NULL, 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(299, NULL, 1, NULL, '2025', '6', '1', '08:00:00', 1, NULL, '2025-05-31 19:53:36', NULL, 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(300, NULL, 1, NULL, '2025', '6', '1', '09:00:00', 1, NULL, '2025-05-31 19:53:36', NULL, 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(301, NULL, 1, NULL, '2025', '6', '1', '12:00:00', 1, NULL, '2025-05-31 19:53:36', NULL, 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(302, NULL, 1, NULL, '2025', '6', '1', '13:00:00', 1, NULL, '2025-05-31 19:53:36', NULL, 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(303, NULL, 1, NULL, '2025', '6', '1', '14:00:00', 1, NULL, '2025-05-31 19:53:36', NULL, 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(304, NULL, 1, NULL, '2025', '6', '1', '18:00:00', 1, NULL, '2025-05-31 19:53:36', NULL, 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(305, NULL, 1, NULL, '2025', '6', '1', '19:00:00', 1, NULL, '2025-05-31 19:53:36', NULL, 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(306, NULL, 1, NULL, '2025', '6', '1', '20:00:00', 1, NULL, '2025-05-31 19:53:36', NULL, 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(307, NULL, 1, NULL, '2025', '6', '1', '21:00:00', 1, NULL, '2025-05-31 19:53:36', NULL, 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(308, NULL, 1, NULL, '2025', '6', '2', '07:00:00', 1, NULL, '2025-05-31 19:53:36', NULL, 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(309, NULL, 1, NULL, '2025', '6', '2', '08:00:00', 1, NULL, '2025-05-31 19:53:36', NULL, 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(310, NULL, 1, NULL, '2025', '6', '2', '09:00:00', 1, NULL, '2025-05-31 19:53:36', NULL, 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(311, NULL, 1, NULL, '2025', '6', '2', '12:00:00', 1, NULL, '2025-05-31 19:53:36', NULL, 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(312, NULL, 1, NULL, '2025', '6', '2', '13:00:00', 1, NULL, '2025-05-31 19:53:36', NULL, 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(313, NULL, 1, NULL, '2025', '6', '2', '14:00:00', 1, NULL, '2025-05-31 19:53:36', NULL, 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(314, NULL, 1, NULL, '2025', '6', '2', '18:00:00', 1, NULL, '2025-05-31 19:53:36', NULL, 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(315, NULL, 1, NULL, '2025', '6', '2', '19:00:00', 1, NULL, '2025-05-31 19:53:36', NULL, 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(316, NULL, 1, NULL, '2025', '6', '2', '20:00:00', 1, NULL, '2025-05-31 19:53:36', NULL, 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(317, NULL, 1, NULL, '2025', '6', '2', '21:00:00', 1, NULL, '2025-05-31 19:53:36', NULL, 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(318, NULL, 1, NULL, '2025', '6', '3', '07:00:00', 1, NULL, '2025-05-31 19:53:36', NULL, 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(319, NULL, 1, NULL, '2025', '6', '3', '08:00:00', 1, NULL, '2025-05-31 19:53:36', NULL, 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(320, NULL, 1, NULL, '2025', '6', '3', '09:00:00', 1, NULL, '2025-05-31 19:53:36', NULL, 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(321, NULL, 1, NULL, '2025', '6', '3', '12:00:00', 1, NULL, '2025-05-31 19:53:36', NULL, 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(322, NULL, 1, NULL, '2025', '6', '3', '13:00:00', 1, NULL, '2025-05-31 19:53:36', NULL, 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(323, NULL, 1, NULL, '2025', '6', '3', '14:00:00', 1, NULL, '2025-05-31 19:53:36', NULL, 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(324, NULL, 1, NULL, '2025', '6', '3', '18:00:00', 1, NULL, '2025-05-31 19:53:36', NULL, 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(325, NULL, 1, NULL, '2025', '6', '3', '19:00:00', 1, NULL, '2025-05-31 19:53:36', NULL, 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(326, NULL, 1, NULL, '2025', '6', '3', '20:00:00', 1, NULL, '2025-05-31 19:53:36', NULL, 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(327, NULL, 1, NULL, '2025', '6', '3', '21:00:00', 1, NULL, '2025-05-31 19:53:36', NULL, 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(328, NULL, 1, NULL, '2025', '06', '01', '07:00:00', 1, '15.00', '2025-05-31 19:57:33', 'Breakfast', 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(329, NULL, 1, NULL, '2025', '06', '01', '08:00:00', 1, '15.00', '2025-05-31 19:57:33', 'Breakfast', 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(330, NULL, 1, NULL, '2025', '06', '01', '09:00:00', 1, '15.00', '2025-05-31 19:57:33', 'Breakfast', 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(331, NULL, 1, NULL, '2025', '06', '01', '12:00:00', 1, '25.00', '2025-05-31 19:57:33', 'Lunch', 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(332, NULL, 1, NULL, '2025', '06', '01', '13:00:00', 1, '25.00', '2025-05-31 19:57:33', 'Lunch', 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(333, NULL, 1, NULL, '2025', '06', '01', '14:00:00', 1, '25.00', '2025-05-31 19:57:33', 'Lunch', 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(334, NULL, 1, NULL, '2025', '06', '01', '18:00:00', 1, '35.00', '2025-05-31 19:57:33', 'Dinner', 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(335, NULL, 1, NULL, '2025', '06', '01', '19:00:00', 1, '35.00', '2025-05-31 19:57:33', 'Dinner', 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(336, NULL, 1, NULL, '2025', '06', '01', '20:00:00', 1, '35.00', '2025-05-31 19:57:33', 'Dinner', 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(337, NULL, 1, NULL, '2025', '06', '01', '21:00:00', 1, '35.00', '2025-05-31 19:57:33', 'Dinner', 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(338, NULL, 1, NULL, '2025', '06', '02', '07:00:00', 1, '15.00', '2025-05-31 19:57:33', 'Breakfast', 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(339, NULL, 1, NULL, '2025', '06', '02', '08:00:00', 1, '15.00', '2025-05-31 19:57:33', 'Breakfast', 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(340, NULL, 1, NULL, '2025', '06', '02', '09:00:00', 1, '15.00', '2025-05-31 19:57:33', 'Breakfast', 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(341, NULL, 1, NULL, '2025', '06', '02', '12:00:00', 1, '25.00', '2025-05-31 19:57:33', 'Lunch', 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(342, NULL, 1, NULL, '2025', '06', '02', '13:00:00', 1, '25.00', '2025-05-31 19:57:33', 'Lunch', 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(343, NULL, 1, NULL, '2025', '06', '02', '14:00:00', 1, '25.00', '2025-05-31 19:57:33', 'Lunch', 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(344, NULL, 1, NULL, '2025', '06', '02', '18:00:00', 1, '35.00', '2025-05-31 19:57:33', 'Dinner', 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(345, NULL, 1, NULL, '2025', '06', '02', '19:00:00', 1, '35.00', '2025-05-31 19:57:33', 'Dinner', 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(346, NULL, 1, NULL, '2025', '06', '02', '20:00:00', 1, '35.00', '2025-05-31 19:57:33', 'Dinner', 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(347, NULL, 1, NULL, '2025', '06', '02', '21:00:00', 1, '35.00', '2025-05-31 19:57:33', 'Dinner', 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(348, NULL, 1, NULL, '2025', '06', '03', '07:00:00', 1, '15.00', '2025-05-31 19:57:33', 'Breakfast', 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(349, NULL, 1, NULL, '2025', '06', '03', '08:00:00', 1, '15.00', '2025-05-31 19:57:33', 'Breakfast', 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(350, NULL, 1, NULL, '2025', '06', '03', '09:00:00', 1, '15.00', '2025-05-31 19:57:33', 'Breakfast', 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(351, NULL, 1, NULL, '2025', '06', '03', '12:00:00', 1, '25.00', '2025-05-31 19:57:33', 'Lunch', 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(352, NULL, 1, NULL, '2025', '06', '03', '13:00:00', 1, '25.00', '2025-05-31 19:57:33', 'Lunch', 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(353, NULL, 1, NULL, '2025', '06', '03', '14:00:00', 1, '25.00', '2025-05-31 19:57:33', 'Lunch', 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(354, NULL, 1, NULL, '2025', '06', '03', '18:00:00', 1, '35.00', '2025-05-31 19:57:33', 'Dinner', 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(355, NULL, 1, NULL, '2025', '06', '03', '19:00:00', 1, '35.00', '2025-05-31 19:57:33', 'Dinner', 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(356, NULL, 1, NULL, '2025', '06', '03', '20:00:00', 1, '35.00', '2025-05-31 19:57:33', 'Dinner', 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(357, NULL, 1, NULL, '2025', '06', '03', '21:00:00', 1, '35.00', '2025-05-31 19:57:33', 'Dinner', 1, 0, NULL, 1, NULL, 1, 'Admin', NULL, NULL),
+(358, NULL, 14, NULL, '2025', '06', '01', '07:00:00', 0, '15.00', '2025-05-31 20:02:06', 'Breakfast', 1, 0, NULL, 18, 1, 1, 'Admin', NULL, NULL),
+(359, NULL, 14, NULL, '2025', '06', '01', '08:00:00', 1, '15.00', '2025-05-31 20:02:06', 'Breakfast', 1, 0, NULL, 18, NULL, 1, 'Admin', NULL, NULL),
+(360, NULL, 14, NULL, '2025', '06', '01', '09:00:00', 1, '15.00', '2025-05-31 20:02:06', 'Breakfast', 1, 0, NULL, 18, NULL, 1, 'Admin', NULL, NULL),
+(361, NULL, 14, NULL, '2025', '06', '01', '12:00:00', 1, '25.00', '2025-05-31 20:02:06', 'Lunch', 1, 0, NULL, 18, NULL, 1, 'Admin', NULL, NULL),
+(362, NULL, 14, NULL, '2025', '06', '01', '13:00:00', 1, '25.00', '2025-05-31 20:02:06', 'Lunch', 1, 0, NULL, 18, NULL, 1, 'Admin', NULL, NULL),
+(363, NULL, 14, NULL, '2025', '06', '01', '14:00:00', 1, '25.00', '2025-05-31 20:02:06', 'Lunch', 1, 0, NULL, 18, NULL, 1, 'Admin', NULL, NULL),
+(364, NULL, 14, NULL, '2025', '06', '01', '18:00:00', 1, '35.00', '2025-05-31 20:02:06', 'Dinner', 1, 0, NULL, 18, NULL, 1, 'Admin', NULL, NULL),
+(365, NULL, 14, NULL, '2025', '06', '01', '19:00:00', 1, '35.00', '2025-05-31 20:02:06', 'Dinner', 1, 0, NULL, 18, NULL, 1, 'Admin', NULL, NULL),
+(366, NULL, 14, NULL, '2025', '06', '01', '20:00:00', 1, '35.00', '2025-05-31 20:02:06', 'Dinner', 1, 0, NULL, 18, NULL, 1, 'Admin', NULL, NULL),
+(367, NULL, 14, NULL, '2025', '06', '01', '21:00:00', 1, '35.00', '2025-05-31 20:02:06', 'Dinner', 1, 0, NULL, 18, NULL, 1, 'Admin', NULL, NULL),
+(368, NULL, 14, NULL, '2025', '06', '02', '07:00:00', 1, '15.00', '2025-05-31 20:02:06', 'Breakfast', 1, 0, NULL, 18, NULL, 1, 'Admin', NULL, NULL),
+(369, NULL, 14, NULL, '2025', '06', '02', '08:00:00', 1, '15.00', '2025-05-31 20:02:06', 'Breakfast', 1, 0, NULL, 18, NULL, 1, 'Admin', NULL, NULL),
+(370, NULL, 14, NULL, '2025', '06', '02', '09:00:00', 1, '15.00', '2025-05-31 20:02:06', 'Breakfast', 1, 0, NULL, 18, NULL, 1, 'Admin', NULL, NULL),
+(371, NULL, 14, NULL, '2025', '06', '02', '12:00:00', 1, '25.00', '2025-05-31 20:02:06', 'Lunch', 1, 0, NULL, 18, NULL, 1, 'Admin', NULL, NULL),
+(372, NULL, 14, NULL, '2025', '06', '02', '13:00:00', 1, '25.00', '2025-05-31 20:02:06', 'Lunch', 1, 0, NULL, 18, NULL, 1, 'Admin', NULL, NULL),
+(373, NULL, 14, NULL, '2025', '06', '02', '14:00:00', 1, '25.00', '2025-05-31 20:02:06', 'Lunch', 1, 0, NULL, 18, NULL, 1, 'Admin', NULL, NULL),
+(374, NULL, 14, NULL, '2025', '06', '02', '18:00:00', 1, '35.00', '2025-05-31 20:02:06', 'Dinner', 1, 0, NULL, 18, NULL, 1, 'Admin', NULL, NULL),
+(375, NULL, 14, NULL, '2025', '06', '02', '19:00:00', 1, '35.00', '2025-05-31 20:02:06', 'Dinner', 1, 0, NULL, 18, NULL, 1, 'Admin', NULL, NULL),
+(376, NULL, 14, NULL, '2025', '06', '02', '20:00:00', 1, '35.00', '2025-05-31 20:02:06', 'Dinner', 1, 0, NULL, 18, NULL, 1, 'Admin', NULL, NULL),
+(377, NULL, 14, NULL, '2025', '06', '02', '21:00:00', 1, '35.00', '2025-05-31 20:02:06', 'Dinner', 1, 0, NULL, 18, NULL, 1, 'Admin', NULL, NULL),
+(378, NULL, 14, NULL, '2025', '06', '03', '07:00:00', 1, '15.00', '2025-05-31 20:02:06', 'Breakfast', 1, 0, NULL, 18, NULL, 1, 'Admin', NULL, NULL),
+(379, NULL, 14, NULL, '2025', '06', '03', '08:00:00', 1, '15.00', '2025-05-31 20:02:06', 'Breakfast', 1, 0, NULL, 18, NULL, 1, 'Admin', NULL, NULL),
+(380, NULL, 14, NULL, '2025', '06', '03', '09:00:00', 1, '15.00', '2025-05-31 20:02:06', 'Breakfast', 1, 0, NULL, 18, NULL, 1, 'Admin', NULL, NULL),
+(381, NULL, 14, NULL, '2025', '06', '03', '12:00:00', 1, '25.00', '2025-05-31 20:02:06', 'Lunch', 1, 0, NULL, 18, NULL, 1, 'Admin', NULL, NULL),
+(382, NULL, 14, NULL, '2025', '06', '03', '13:00:00', 1, '25.00', '2025-05-31 20:02:06', 'Lunch', 1, 0, NULL, 18, NULL, 1, 'Admin', NULL, NULL),
+(383, NULL, 14, NULL, '2025', '06', '03', '14:00:00', 1, '25.00', '2025-05-31 20:02:06', 'Lunch', 1, 0, NULL, 18, NULL, 1, 'Admin', NULL, NULL),
+(384, NULL, 14, NULL, '2025', '06', '03', '18:00:00', 1, '35.00', '2025-05-31 20:02:06', 'Dinner', 1, 0, NULL, 18, NULL, 1, 'Admin', NULL, NULL),
+(385, NULL, 14, NULL, '2025', '06', '03', '19:00:00', 1, '35.00', '2025-05-31 20:02:06', 'Dinner', 1, 0, NULL, 18, NULL, 1, 'Admin', NULL, NULL),
+(386, NULL, 14, NULL, '2025', '06', '03', '20:00:00', 1, '35.00', '2025-05-31 20:02:06', 'Dinner', 1, 0, NULL, 18, NULL, 1, 'Admin', NULL, NULL),
+(387, NULL, 14, NULL, '2025', '06', '03', '21:00:00', 1, '35.00', '2025-05-31 20:02:06', 'Dinner', 1, 0, NULL, 18, NULL, 1, 'Admin', NULL, NULL),
+(388, 3, 13, NULL, '2025', '06', '01', '07:00:00', 1, '20', '2025-05-31 20:39:44', 'Breakfast', 0, 2, NULL, 14, 1, 1, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -2063,7 +2099,6 @@ CREATE TABLE `users_session` (
 --
 ALTER TABLE `admin_privileges`
   ADD PRIMARY KEY (`admin_privileges_id`),
-  ADD UNIQUE KEY `hotels_tab_UNIQUE` (`hotels_tab`),
   ADD KEY `fk_admin_privileges_1_idx` (`admin_users_id`);
 
 --
@@ -2305,19 +2340,19 @@ ALTER TABLE `users_session`
 -- AUTO_INCREMENT for table `admin_privileges`
 --
 ALTER TABLE `admin_privileges`
-  MODIFY `admin_privileges_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `admin_privileges_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `admin_users`
 --
 ALTER TABLE `admin_users`
-  MODIFY `admin_users_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `admin_users_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `board_type_rules`
 --
 ALTER TABLE `board_type_rules`
-  MODIFY `board_type_rules_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `board_type_rules_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `companies`
@@ -2365,13 +2400,13 @@ ALTER TABLE `hotels`
 -- AUTO_INCREMENT for table `items`
 --
 ALTER TABLE `items`
-  MODIFY `items_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `items_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `items_translation`
 --
 ALTER TABLE `items_translation`
-  MODIFY `items_translation_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+  MODIFY `items_translation_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
 
 --
 -- AUTO_INCREMENT for table `logs`
@@ -2401,19 +2436,19 @@ ALTER TABLE `menus`
 -- AUTO_INCREMENT for table `menus_items`
 --
 ALTER TABLE `menus_items`
-  MODIFY `menus_items_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
+  MODIFY `menus_items_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
 
 --
 -- AUTO_INCREMENT for table `menu_categories`
 --
 ALTER TABLE `menu_categories`
-  MODIFY `menu_categories_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `menu_categories_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `menu_categories_translation`
 --
 ALTER TABLE `menu_categories_translation`
-  MODIFY `menu_categories_translation_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `menu_categories_translation_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT for table `menu_links`
@@ -2425,13 +2460,13 @@ ALTER TABLE `menu_links`
 -- AUTO_INCREMENT for table `menu_subcategories`
 --
 ALTER TABLE `menu_subcategories`
-  MODIFY `menu_subcategories_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `menu_subcategories_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `menu_subcategories_translation`
 --
 ALTER TABLE `menu_subcategories_translation`
-  MODIFY `menu_subcategories_translation_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `menu_subcategories_translation_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
 
 --
 -- AUTO_INCREMENT for table `reservations`
@@ -2461,7 +2496,7 @@ ALTER TABLE `restaurants_translations`
 -- AUTO_INCREMENT for table `restaurant_pricing_times`
 --
 ALTER TABLE `restaurant_pricing_times`
-  MODIFY `restaurant_pricing_times_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=297;
+  MODIFY `restaurant_pricing_times_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=389;
 
 --
 -- AUTO_INCREMENT for table `restaurant_pricing_times_discounts`

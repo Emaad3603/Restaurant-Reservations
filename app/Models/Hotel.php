@@ -5,6 +5,49 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * 
+ *
+ * @property int $hotel_id
+ * @property string $name
+ * @property int $verification_type
+ * @property int $company_id
+ * @property string|null $created_by
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $updated_by
+ * @property int|null $free_count
+ * @property string|null $time_zone
+ * @property int|null $plus_days_adjust
+ * @property int|null $minus_days_adjust
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property int $active
+ * @property int $restricted_restaurants
+ * @property string|null $logo_url
+ * @property-read \App\Models\Company $company
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\GuestReservation> $guestReservations
+ * @property-read int|null $guest_reservations_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Restaurant> $restaurants
+ * @property-read int|null $restaurants_count
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Hotel newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Hotel newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Hotel query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Hotel whereActive($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Hotel whereCompanyId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Hotel whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Hotel whereCreatedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Hotel whereFreeCount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Hotel whereHotelId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Hotel whereLogoUrl($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Hotel whereMinusDaysAdjust($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Hotel whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Hotel wherePlusDaysAdjust($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Hotel whereRestrictedRestaurants($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Hotel whereTimeZone($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Hotel whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Hotel whereUpdatedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Hotel whereVerificationType($value)
+ * @mixin \Eloquent
+ */
 class Hotel extends Model
 {
     use HasFactory;

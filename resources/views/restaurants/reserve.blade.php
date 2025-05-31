@@ -50,6 +50,20 @@
                         </div>
                     @endif
 
+                    @if($freePaidStatus['free_with_board_type'])
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle me-2"></i> This reservation is free with your board type.
+                        </div>
+                    @elseif($freePaidStatus['free'])
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i> This restaurant is free.
+                        </div>
+                    @elseif($freePaidStatus['paid'])
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i> This reservation will be paid. {{ $freePaidStatus['reason'] }}
+                        </div>
+                    @endif
+
                     <form method="POST" action="{{ route('reservations.store') }}" id="reservationForm">
                         @csrf
                         <input type="hidden" name="restaurant_id" value="{{ $restaurant->restaurants_id }}">
@@ -159,19 +173,22 @@ document.addEventListener('DOMContentLoaded', function() {
             timeSelect.innerHTML = '<option value="">Select a time</option>';
             timeToMealType = {};
             timeToPerPerson = {};
-            if (data.success && data.times && data.times.length > 0) {
-                data.times.forEach(timeObj => {
+            if (Array.isArray(data) && data.length > 0) {
+                data.forEach(slot => {
                     const option = document.createElement('option');
-                    option.value = timeObj.time;
-                    option.textContent = new Date('1970-01-01T' + timeObj.time).toLocaleTimeString('en-US', { 
-                        hour: 'numeric', 
-                        minute: '2-digit', 
-                        hour12: true 
+                    const time = new Date('1970-01-01T' + slot.time).toLocaleTimeString('en-US', {
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        hour12: true
                     });
+                    option.value = slot.time;
+                    option.textContent = `${time} - ${slot.meal_type} ($${slot.price})`;
+                    console.log('Created option:', option);
                     timeSelect.appendChild(option);
-                    // Store meal type and per_person for this time
-                    timeToMealType[timeObj.time] = timeObj.meal_type;
-                    timeToPerPerson[timeObj.time] = timeObj.per_person;
+                    console.log('Appended option to timeSelect');
+                    // Store meal type and per_person for this time if available
+                    timeToMealType[slot.time] = slot.meal_type || '';
+                    timeToPerPerson[slot.time] = slot.per_person || 1;
                 });
             } else {
                 timeSelect.innerHTML = '<option value="">No times available</option>';
@@ -195,10 +212,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // Function to update meal type display and hidden input
     function updateMealType() {
         const selectedTime = timeSelect.value;
-        const mealTypeId = timeToMealType[selectedTime];
-        if (mealTypeId) {
-            mealTypeDisplay.value = mealTypeNames[mealTypeId] || mealTypeId;
-            mealTypeIdInput.value = mealTypeId;
+        const mealTypeName = timeToMealType[selectedTime];
+        if (mealTypeName) {
+            fetch(`/meal-type-id?label=${encodeURIComponent(mealTypeName)}`)
+                .then(response => response.json())
+                .then(data => {
+                    mealTypeDisplay.value = mealTypeName;
+                    mealTypeIdInput.value = data.meal_types_id || '';
+                });
         } else {
             mealTypeDisplay.value = '';
             mealTypeIdInput.value = '';
@@ -253,6 +274,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         statusMsg = '<div class="alert alert-success">You are using a free reservation.</div>';
                     } else if (data.status === 'paid_after_free') {
                         statusMsg = '<div class="alert alert-warning">You have used all your free reservations. This reservation will be paid.</div>';
+                    } else if (data.status === 'free_with_board_type') {
+                        statusMsg = '<div class="alert alert-success">You are using a free reservation (board type + hotel).</div>';
+                    } else if (data.status === 'paid_after_board_type') {
+                        statusMsg = '<div class="alert alert-warning">You have used all your free reservations (board type + hotel). This reservation will be paid.</div>';
                     }
                     pricingInfo.innerHTML = `
                         ${statusMsg}
@@ -293,7 +318,19 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     timeSelect.addEventListener('change', function() {
-        updateMealType();
+        const selectedTime = timeSelect.value;
+        const mealTypeName = timeToMealType[selectedTime];
+        if (mealTypeName) {
+            fetch(`/meal-type-id?label=${encodeURIComponent(mealTypeName)}`)
+                .then(response => response.json())
+                .then(data => {
+                    mealTypeDisplay.value = mealTypeName;
+                    mealTypeIdInput.value = data.meal_types_id || '';
+                });
+        } else {
+            mealTypeDisplay.value = '';
+            mealTypeIdInput.value = '';
+        }
         updatePerPerson();
         updatePricing();
     });

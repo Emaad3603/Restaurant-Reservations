@@ -5,6 +5,23 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * 
+ *
+ * @property int $meal_types_translation_id
+ * @property int|null $meal_types_id
+ * @property string|null $name
+ * @property string $language_code
+ * @property-read \App\Models\MealType|null $mealType
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MealTypeTranslation newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MealTypeTranslation newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MealTypeTranslation query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MealTypeTranslation whereLanguageCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MealTypeTranslation whereMealTypesId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MealTypeTranslation whereMealTypesTranslationId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MealTypeTranslation whereName($value)
+ * @mixin \Eloquent
+ */
 class MealTypeTranslation extends Model
 {
     use HasFactory;

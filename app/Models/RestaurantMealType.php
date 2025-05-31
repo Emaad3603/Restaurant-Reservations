@@ -5,6 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * 
+ *
+ * @property-read \App\Models\MealType|null $mealType
+ * @property-read \App\Models\Restaurant|null $restaurant
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RestaurantMealType newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RestaurantMealType newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RestaurantMealType query()
+ * @mixin \Eloquent
+ */
 class RestaurantMealType extends Model
 {
     use HasFactory;

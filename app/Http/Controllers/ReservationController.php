@@ -81,11 +81,40 @@ class ReservationController extends Controller
         }
         // free_count: check how many reservations the guest has made
         $reservationCount = Reservation::where('guest_reservations_id', $guestReservation->guest_reservations_id)->count();
-        if ($reservationCount >= $hotel->free_count) {
+        $paidReservation = false;
+        // Board type + hotel free count logic
+        if ($guestReservation->board_type && $guestReservation->hotel_id == $hotel->hotel_id) {
+            $boardRule = DB::table('board_type_rules')
+                ->where('company_id', $hotel->company_id)
+                ->where('hotel_id', $hotel->hotel_id)
+                ->where('board_type_rules_id', $guestReservation->board_type)
+                ->first();
+            $freeCount = $boardRule ? $boardRule->free_count : 0;
+            $hotelFreeCount = $hotel->free_count ?? 0;
+            $maxFree = $freeCount + $hotelFreeCount;
+            \Log::info('ReservationBoardTypeCheck', [
+                'guestBoardType' => $guestReservation->board_type,
+                'boardRule' => $boardRule,
+                'freeCount' => $freeCount,
+                'hotelFreeCount' => $hotelFreeCount,
+                'maxFree' => $maxFree,
+                'reservationCount' => $reservationCount
+            ]);
+            if ($reservationCount >= $maxFree) {
+                $paidReservation = true;
+                session(['paid_reservation' => true]);
+                session()->flash('paid_message', 'You have exceeded your free reservation limit (board type + hotel). This reservation will be paid.');
+            } else {
+                $paidReservation = false;
+                session(['paid_reservation' => false]);
+            }
+        } else if ($reservationCount >= $hotel->free_count) {
             // Guest has exceeded free_count, set paid reservation flag
+            $paidReservation = true;
             session(['paid_reservation' => true]);
             session()->flash('paid_message', 'You have exceeded your free reservation limit. This reservation will be paid.');
         } else {
+            $paidReservation = false;
             session(['paid_reservation' => false]);
         }
         // --- End hotel-based validation ---

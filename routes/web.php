@@ -50,3 +50,10 @@ Route::post('/pricing/calculate', [PricingController::class, 'calculatePrice'])-
 Route::post('/reservations', [ReservationController::class, 'store'])->name('reservations.store');
 Route::get('/reservations/{id}/confirm', [ReservationController::class, 'confirm'])->name('reservations.confirm');
 Route::get('/reservations/{id}/print', [ReservationController::class, 'printReceipt'])->name('reservations.print');
+
+// Meal type ID route
+Route::get('/meal-type-id', function (\Illuminate\Http\Request $request) {
+    $label = $request->query('label');
+    $mealType = \App\Models\MealType::where('label', $label)->first();
+    return response()->json(['meal_types_id' => $mealType ? $mealType->meal_types_id : null]);
+});

@@ -11,6 +11,30 @@
 </div>
 
 <div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Select Date and Time</h5>
+            </div>
+            <div class="card-body">
+                <form id="menuTimeForm" class="row g-3">
+                    <div class="col-md-6">
+                        <label for="reservation_date" class="form-label">Date</label>
+                        <input type="date" class="form-control" id="reservation_date" name="reservation_date" min="{{ date('Y-m-d') }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="reservation_time" class="form-label">Time</label>
+                        <select class="form-select" id="reservation_time" name="reservation_time" required>
+                            <option value="">Select Time</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
     <div class="col-md-8">
         <div class="card">
             <div class="card-header">
@@ -110,4 +134,83 @@
         </div>
     </div>
 </div>
-@endsection 
+@endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dateInput = document.getElementById('reservation_date');
+    const timeSelect = document.getElementById('reservation_time');
+    
+    // Set minimum date to today
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.min = today;
+
+    // Get CSRF token safely
+    const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
+    const csrfToken = csrfTokenMeta ? csrfTokenMeta.content : '';
+    
+    dateInput.addEventListener('change', function() {
+        const selectedDate = this.value;
+        console.log('Selected date:', selectedDate);
+        
+        // Clear existing options
+        timeSelect.innerHTML = '<option value="">Select Time</option>';
+        
+        if (selectedDate) {
+            // Fetch available times
+            fetch(`/restaurants/{{ $restaurant->restaurants_id }}/time-slots?date=${selectedDate}&restaurant_id={{ $restaurant->restaurants_id }}`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                }
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Received data:', data);
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                if (data.length === 0) {
+                    timeSelect.innerHTML = '<option value="">No times available</option>';
+                    return;
+                }
+                
+                // Log the time select element
+                console.log('Time select element:', timeSelect);
+                
+                // Clear existing options
+                timeSelect.innerHTML = '<option value="">Select Time</option>';
+                
+                // Add time options
+                data.forEach(slot => {
+                    const option = document.createElement('option');
+                    const time = new Date(`2000-01-01T${slot.time}`).toLocaleTimeString('en-US', {
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        hour12: true
+                    });
+                    option.value = slot.time;
+                    option.textContent = `${time} - ${slot.meal_type} ($${slot.price})`;
+                    console.log('Created option:', option);
+                    timeSelect.appendChild(option);
+                    console.log('Appended option to timeSelect');
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                timeSelect.innerHTML = '<option value="">Error loading times</option>';
+            });
+        }
+    });
+});
+</script>
+@endpush 

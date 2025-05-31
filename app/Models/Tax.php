@@ -4,6 +4,36 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * 
+ *
+ * @property int $taxes_id
+ * @property int|null $company_id
+ * @property string|null $label
+ * @property int|null $percentage
+ * @property string|null $value
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property string|null $created_by
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $updated_by
+ * @property int|null $active
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\TaxTranslation> $translations
+ * @property-read int|null $translations_count
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Tax newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Tax newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Tax query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Tax whereActive($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Tax whereCompanyId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Tax whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Tax whereCreatedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Tax whereLabel($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Tax wherePercentage($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Tax whereTaxesId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Tax whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Tax whereUpdatedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Tax whereValue($value)
+ * @mixin \Eloquent
+ */
 class Tax extends Model
 {
     protected $table = 'taxes';

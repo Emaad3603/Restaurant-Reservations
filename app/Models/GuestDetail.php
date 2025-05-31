@@ -5,6 +5,25 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * 
+ *
+ * @property int $guest_details_id
+ * @property int|null $guest_reservations_id
+ * @property string|null $guest_name
+ * @property string|null $guest_type
+ * @property string|null $birth_date
+ * @property-read \App\Models\GuestReservation|null $guestReservation
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GuestDetail newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GuestDetail newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GuestDetail query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GuestDetail whereBirthDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GuestDetail whereGuestDetailsId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GuestDetail whereGuestName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GuestDetail whereGuestReservationsId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GuestDetail whereGuestType($value)
+ * @mixin \Eloquent
+ */
 class GuestDetail extends Model
 {
     use HasFactory;

@@ -10,6 +10,7 @@ use App\Models\RestaurantPricingTimeTax;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
 
 class PricingController extends Controller
 {
@@ -22,33 +23,65 @@ class PricingController extends Controller
      */
     public function getAvailableTimeSlots(Request $request, $restaurantId)
     {
-        $request->validate([
-            'date' => 'required|date|after_or_equal:today'
-        ]);
-
-        $date = Carbon::parse($request->date);
-        
-        $times = RestaurantPricingTime::where('restaurant_id', $restaurantId)
-            ->where('hotel_id', session('hotel_id'))
-            ->where(function($query) use ($date) {
-                $query->whereNull('year')
-                    ->orWhere('year', $date->year);
-            })
-            ->where(function($query) use ($date) {
-                $query->whereNull('month')
-                    ->orWhere('month', $date->month);
-            })
-            ->where(function($query) use ($date) {
-                $query->whereNull('day')
-                    ->orWhere('day', $date->day);
-            })
-            ->orderBy('time')
-            ->get(['time', 'meal_type']);
-
-        return response()->json([
-            'success' => true,
-            'times' => $times
-        ]);
+        try {
+            $request->validate([
+                'date' => 'required|date|after_or_equal:today'
+            ]);
+            
+            // Debug log to print the entire request data
+            \Log::info('Request data:', $request->all());
+            
+            $hotelId = Session::get('hotel_id');
+            $date = Carbon::parse($request->date);
+            
+            \Log::info('Fetching time slots', [
+                'restaurant_id' => $restaurantId,
+                'hotel_id' => $hotelId,
+                'date' => $date->format('Y-m-d'),
+                'year' => $date->format('Y'),
+                'month' => $date->format('m'),
+                'day' => $date->format('d'),
+                'session_data' => Session::all()
+            ]);
+            
+            // Get all pricing times for this restaurant and hotel
+            $allPricingTimes = RestaurantPricingTime::where('restaurant_id', $restaurantId)
+                ->where('hotel_id', $hotelId)
+                ->get();
+                
+            \Log::info('All pricing times found', [
+                'count' => $allPricingTimes->count(),
+                'times' => $allPricingTimes->toArray()
+            ]);
+            
+            // Get time slots for the specific date
+            $timeSlots = RestaurantPricingTime::where('restaurant_id', $restaurantId)
+                ->where('hotel_id', $hotelId)
+                ->where(function($query) use ($date) {
+                    $query->where(function($q) use ($date) {
+                        $q->where('year', (string)$date->year)
+                          ->where('month', (string)$date->format('m'))
+                          ->where('day', (string)$date->format('d'));
+                    })->orWhere(function($q) {
+                        $q->whereNull('year')
+                          ->whereNull('month')
+                          ->whereNull('day');
+                    });
+                })
+                ->orderBy('time')
+                ->get(['time', 'meal_type', 'price']);
+                
+            \Log::info('Time slots found', [
+                'count' => $timeSlots->count(),
+                'slots' => $timeSlots->toArray(),
+                'query_log' => DB::getQueryLog()
+            ]);
+            
+            return response()->json($timeSlots);
+        } catch (\Exception $e) {
+            \Log::error('Error fetching time slots: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to fetch time slots'], 500);
+        }
     }
     
     /**
@@ -126,22 +159,57 @@ class PricingController extends Controller
         $restaurant = \App\Models\Restaurant::find($request->restaurant_id);
         $hotel = \App\Models\Hotel::find(session('hotel_id'));
         $roomNumber = session('room_number');
-
-        // Determine pricing logic based on always_paid_free
+        $guestReservationId = session('guest_reservation_id');
+        $guestReservation = \App\Models\GuestReservation::find($guestReservationId);
+        $guestBoardType = $guestReservation ? $guestReservation->board_type : null;
+        $guestHotelId = $guestReservation ? $guestReservation->hotel_id : null;
+        $companyId = $hotel ? $hotel->company_id : null;
+        
+        // Determine pricing logic with board type priority
         $basePrice = $pricingTime->per_person * count($request->guests);
         $currencySymbol = $pricingTime->currency->symbol ?? '$';
         $totalPrice = $basePrice;
         $status = '';
-        if ($restaurant->always_paid_free === 0) {
-            // Always free
+        if ($guestBoardType && $guestHotelId == $restaurant->hotel_id) {
+            $boardRule = \DB::table('board_type_rules')
+                ->where('company_id', $companyId)
+                ->where('hotel_id', $hotel->hotel_id)
+                ->where('board_type_rules_id', $guestBoardType)
+                ->first();
+            $freeCount = $boardRule ? $boardRule->free_count : 0;
+            $hotelFreeCount = $hotel->free_count ?? 0;
+            $maxFree = $freeCount + $hotelFreeCount;
+            $guestReservationCount = \DB::table('reservations')
+                ->where('guest_reservations_id', $guestReservationId)
+                ->count();
+            \Log::info('PricingBoardTypeCheck', [
+                'restaurant_id' => $restaurant->restaurants_id,
+                'restaurant_name' => $restaurant->name,
+                'guestBoardType' => $guestBoardType,
+                'boardRule' => $boardRule,
+                'freeCount' => $freeCount,
+                'hotelFreeCount' => $hotelFreeCount,
+                'maxFree' => $maxFree,
+                'guestReservationCount' => $guestReservationCount
+            ]);
+            if ($guestReservationCount < $maxFree) {
+                $totalPrice = 0;
+                $status = 'free_with_board_type';
+            } else {
+                $status = 'paid_after_board_type';
+            }
+        } elseif ($restaurant->always_paid_free === 0) {
             $totalPrice = 0;
             $status = 'always_free';
         } elseif ($restaurant->always_paid_free === 1) {
-            // Always paid
             $status = 'always_paid';
         } else {
-            // Use hotel free_count logic (always_paid_free is null)
             $remainingFreeReservations = $hotel ? $hotel->getRemainingFreeReservations($roomNumber) : 0;
+            \Log::info('PricingHotelFreeCountCheck', [
+                'restaurant_id' => $restaurant->restaurants_id,
+                'restaurant_name' => $restaurant->name,
+                'remainingFreeReservations' => $remainingFreeReservations
+            ]);
             if ($remainingFreeReservations > 0) {
                 $totalPrice = 0;
                 $status = 'free_remaining';
@@ -149,7 +217,6 @@ class PricingController extends Controller
                 $status = 'paid_after_free';
             }
         }
-
         return response()->json([
             'success' => true,
             'base_price' => $basePrice,
