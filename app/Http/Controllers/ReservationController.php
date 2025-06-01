@@ -127,6 +127,7 @@ class ReservationController extends Controller
         // Create the reservation
         $reservation = new Reservation();
         $reservation->guest_reservations_id = session('guest_reservation_id');
+        $reservation->room_number = session('room_number');
         $reservation->restaurant_id = $request->restaurant_id;
         $reservation->day = $request->date;
         $reservation->time = $request->time;

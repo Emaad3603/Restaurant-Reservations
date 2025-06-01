@@ -45,13 +45,26 @@ class RestaurantController extends Controller
         
         // Get restaurants based on hotel's restriction settings
         $restaurants = Restaurant::where('active', 1)
-            ->where(function($query) use ($hotel) {
-                if ($hotel->restricted_restaurants === 1) {
-                    // Only show restaurants from this hotel
-                    $query->where('hotel_id', $hotel->hotel_id);
-                }
-            })
             ->get();
+            
+        // Filter and set status based on hotel's restricted_restaurants setting
+        $restaurants = $restaurants->filter(function($restaurant) use ($hotel, $guestHotelId, $guestBoardType, $companyId) {
+            // Case 1: restricted_restaurants = 1 (only show restaurants from same hotel)
+            if ($hotel->restricted_restaurants === 1) {
+                return $restaurant->hotel_id == $guestHotelId;
+            }
+            
+            // Case 2: restricted_restaurants = 2 (show all but always paid for other hotels)
+            if ($hotel->restricted_restaurants === 2) {
+                if ($restaurant->hotel_id != $guestHotelId) {
+                    $restaurant->always_paid_free = 1; // Force always paid for other hotels
+                }
+                return true;
+            }
+            
+            // Case 0: restricted_restaurants = 0 (show all, use free count for pricing)
+            return true;
+        });
         
         // Determine free/paid status for each restaurant
         $restaurantStatuses = [];
@@ -224,12 +237,6 @@ class RestaurantController extends Controller
         $restaurant = Restaurant::findOrFail($restaurantId);
         $hotel = Hotel::find(Session::get('hotel_id'));
         
-        // Check if restaurant is restricted
-        if ($hotel->isRestaurantRestricted($restaurantId)) {
-            return Redirect::route('restaurants.index')
-                ->with('error', 'This restaurant is not available for your hotel.');
-        }
-        
         // Get restaurant translation
         $translation = $restaurant->getTranslation('en');
         
@@ -293,12 +300,6 @@ class RestaurantController extends Controller
             'restaurantHotelId' => $restaurant->hotel_id,
             'guestReservationId' => $guestReservationId
         ]);
-        
-        // Check if restaurant is restricted
-        if ($hotel->isRestaurantRestricted($restaurantId)) {
-            return Redirect::route('restaurants.index')
-                ->with('error', 'This restaurant is not available for your hotel.');
-        }
         
         // Determine free/paid status for this reservation
         $freePaidStatus = [
