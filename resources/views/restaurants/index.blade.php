@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Select Restaurant - Restaurant Reservations')
+@section('title', 'Select Restaurant - {{ $company->company_name }}')
 
 @section('content')
 <div class="container">

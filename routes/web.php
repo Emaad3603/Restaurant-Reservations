@@ -5,6 +5,7 @@ use App\Http\Controllers\GuestController;
 use App\Http\Controllers\RestaurantController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\PricingController;
+use App\Http\Controllers\WelcomeController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -19,12 +20,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 // Welcome page
-Route::get('/', function () {
-    // Clear any existing session data when starting a new reservation
-    session()->forget(['hotel_id', 'hotel_name', 'room_number', 'guest_reservation_id', 
-                     'guest_name', 'number_of_guests', 'reservation_id']);
-    return view('custom_welcome');
-})->name('welcome');
+Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
 
 // Hotel routes
 Route::get('/hotels', [HotelController::class, 'index'])->name('hotels.index');

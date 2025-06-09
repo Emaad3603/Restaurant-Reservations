@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Welcome - Restaurant Reservations')
+@section('title', 'Welcome - {{ $company->company_name }}')
 
 @section('content')
 <div class="container welcome-container">
@@ -8,10 +8,14 @@
         <div class="col-md-10 col-lg-8">
             <div class="welcome-card card border-0 shadow-lg overflow-hidden">
                 <div class="welcome-header position-relative">
-                    <img src="https://cdn.pixabay.com/photo/2017/09/23/12/40/catering-2778755_1280.jpg" alt="Restaurant Dining" class="img-fluid w-100" style="height: 250px; object-fit: cover;">
+                    @if($company->logo_url)
+                        <img src="{{ $company->logo_url }}" alt="{{ $company->company_name }}" class="img-fluid w-100" style="height: 250px; object-fit: cover;">
+                    @else
+                        <img src="https://cdn.pixabay.com/photo/2017/09/23/12/40/catering-2778755_1280.jpg" alt="Restaurant Dining" class="img-fluid w-100" style="height: 250px; object-fit: cover;">
+                    @endif
                     <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(rgba(74, 78, 178, 0.3), rgba(74, 78, 178, 0.8))"></div>
                     <div class="position-absolute top-50 start-50 translate-middle text-center w-100 px-4">
-                        <h1 class="text-white fw-bold mb-3 ">Restaurant Reservations</h1>
+                        <h1 class="text-white fw-bold mb-3">{{ $company->company_name }}</h1>
                         <p class="text-white fs-5 mb-0">Simplify your dining experience</p>
                     </div>
                 </div>

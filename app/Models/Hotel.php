@@ -283,4 +283,19 @@ class Hotel extends Model
             })
             ->get();
     }
+
+    /**
+     * Get the logo URL attribute.
+     *
+     * @param string|null $value
+     * @return string|null
+     */
+    public function getLogoUrlAttribute($value)
+    {
+        if (!$value) return null;
+        if (filter_var($value, FILTER_VALIDATE_URL)) return $value;
+        if (str_starts_with($value, '/')) return $value;
+        
+        return url('/../shared_storage/' . $value);
+    }
 }

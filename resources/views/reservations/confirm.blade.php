@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Reservation Confirmation - Restaurant Reservations')
+@section('title', 'Reservation Confirmation - {{ $company->company_name }}')
 
 @section('content')
 <div class="row mb-4">

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Guest Verification - Restaurant Reservations')
+@section('title', 'Guest Verification - {{ $company->company_name }}')
 
 @section('content')
 <div class="row mb-4">

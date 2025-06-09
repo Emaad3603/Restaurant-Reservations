@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Make Reservation - ' . $restaurant->name)
+@section('title', 'Make Reservation at {{ $restaurant->name }} - {{ $company->company_name }}')
 
 @section('content')
 <div class="container">

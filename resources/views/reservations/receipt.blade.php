@@ -76,7 +76,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Restaurant Reservation Receipt</h1>
+            <h1>{{ $company->company_name }} - Reservation Receipt</h1>
             <p>{{ \Carbon\Carbon::now()->format('F j, Y') }}</p>
             <div class="confirmation-code">
                 {{ $reservation->confirmation_code }}
@@ -116,7 +116,7 @@
         
         <div class="footer">
             <p>Thank you for choosing to dine with us at {{ $reservation->restaurant->name }}.</p>
-            <p>Restaurant Reservations System &copy; {{ date('Y') }}</p>
+            <p>{{ $company->company_name }} &copy; {{ date('Y') }}</p>
         </div>
     </div>
 </body>
