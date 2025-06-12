@@ -12,6 +12,8 @@ use Illuminate\Support\Str;
 use App\Models\GuestReservation;
 use App\Models\Hotel;
 use Illuminate\Support\Facades\DB;
+use App\Models\RestaurantPricingTime;
+use App\Models\Guest;
 
 class ReservationController extends Controller
 {
@@ -123,16 +125,47 @@ class ReservationController extends Controller
         $reservation->guest_reservations_id = session('guest_reservation_id');
         $reservation->room_number = session('room_number');
         $reservation->restaurant_id = $request->restaurant_id;
+        $reservation->guest_hotel_id = $hotel->hotel_id;
+        $reservation->restaurant_hotel_id = $hotel->hotel_id ?? null;
+        $reservation->company_id = $hotel->company_id;
         $reservation->day = $request->date;
         $reservation->time = $request->time;
         $reservation->pax = session('number_of_guests');
         $reservation->canceled = 0;
         $reservation->ended = 0;
-        $reservation->company_id = 1; // Default company ID, adjust as needed
-        $reservation->qrcode = Str::random(20);
         $reservation->created_by = 'system';
         $reservation->meal_types_id = $request->meal_type_id;
+        $reservation->qrcode = Str::random(20);
         $reservation->time_zone = 'UTC';
+        // Optionally set guest_name if your reservations table has this field
+        if (isset($reservation->guest_name) && session('guest_name')) {
+            $reservation->guest_name = session('guest_name');
+        }
+        // Set menus_id from the selected pricing time
+        $date = \Carbon\Carbon::parse($request->date);
+        $pricingTime = RestaurantPricingTime::where('restaurant_id', $request->restaurant_id)
+            ->where('time', $request->time)
+            ->where(function($query) use ($date) {
+                $query->where(function($q) use ($date) {
+                    $q->where('year', (string)$date->year)
+                      ->where('month', (string)$date->format('m'))
+                      ->where('day', (string)$date->format('d'));
+                })->orWhere(function($q) {
+                    $q->whereNull('year')
+                      ->whereNull('month')
+                      ->whereNull('day');
+                });
+            })
+            ->first();
+        $reservation->menus_id = $pricingTime ? $pricingTime->menus_id : null;
+
+        // Set names from the selected guests in the form
+        if ($request->has('guests')) {
+            $guestIds = is_array($request->guests) ? $request->guests : [$request->guests];
+            // Fetch guest names from the database
+            $guestNames = Guest::whereIn('guest_details_id', $guestIds)->pluck('guest_name')->toArray();
+            $reservation->names = implode(', ', $guestNames);
+        }
         $reservation->save();
         
         // Store reservation info in session
