@@ -147,15 +147,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Map of time to meal type and per_person (populated from backend)
     let timeToMealType = {};
     let timeToPerPerson = {};
-    let mealTypeNames = {
-        18: 'Breakfast',
-        19: 'Lunch',
-        20: 'Dinner'
-    };
+    let timeToMealTypeId = {};
 
     // Function to fetch available times for selected date
     function fetchAvailableTimes(date) {
-        console.log('Fetching times for date:', date); // Debug log
+        console.log('Fetching times for date:', date);
         fetch(`/restaurants/{{ $restaurant->restaurants_id }}/time-slots?date=${date}`, {
             method: 'GET',
             headers: {
@@ -164,15 +160,16 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         })
         .then(response => {
-            console.log('Response status:', response.status); // Debug log
+            console.log('Response status:', response.status);
             return response.json();
         })
         .then(data => {
-            console.log('Received data:', data); // Debug log
+            console.log('Received time slots data:', data);
             // Clear existing options
             timeSelect.innerHTML = '<option value="">Select a time</option>';
             timeToMealType = {};
             timeToPerPerson = {};
+            timeToMealTypeId = {};
             if (Array.isArray(data) && data.length > 0) {
                 data.forEach(slot => {
                     const option = document.createElement('option');
@@ -183,12 +180,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
                     option.value = slot.time;
                     option.textContent = `${time} - ${slot.meal_type} ($${slot.price})`;
-                    console.log('Created option:', option);
                     timeSelect.appendChild(option);
-                    console.log('Appended option to timeSelect');
                     // Store meal type and per_person for this time if available
                     timeToMealType[slot.time] = slot.meal_type || '';
                     timeToPerPerson[slot.time] = slot.per_person || 1;
+                    timeToMealTypeId[slot.time] = slot.meal_type_id || '';
+                    console.log(`Stored for time ${slot.time}:`, {
+                        mealType: slot.meal_type,
+                        mealTypeId: slot.meal_type_id,
+                        perPerson: slot.per_person
+                    });
                 });
             } else {
                 timeSelect.innerHTML = '<option value="">No times available</option>';
@@ -213,16 +214,22 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateMealType() {
         const selectedTime = timeSelect.value;
         const mealTypeName = timeToMealType[selectedTime];
-        if (mealTypeName) {
-            fetch(`/meal-type-id?label=${encodeURIComponent(mealTypeName)}`)
-                .then(response => response.json())
-                .then(data => {
-                    mealTypeDisplay.value = mealTypeName;
-                    mealTypeIdInput.value = data.meal_types_id || '';
-                });
+        const mealTypeId = timeToMealTypeId[selectedTime];
+        console.log('Selected time:', selectedTime);
+        console.log('Meal type name:', mealTypeName);
+        console.log('Meal type ID:', mealTypeId);
+        console.log('Time to meal type mapping:', timeToMealType);
+        console.log('Time to meal type ID mapping:', timeToMealTypeId);
+        
+        if (mealTypeName && mealTypeId) {
+            mealTypeDisplay.value = mealTypeName;
+            mealTypeIdInput.value = mealTypeId;
+            console.log('Set meal type display to:', mealTypeDisplay.value);
+            console.log('Set meal type ID to:', mealTypeIdInput.value);
         } else {
             mealTypeDisplay.value = '';
             mealTypeIdInput.value = '';
+            console.log('Cleared meal type values');
         }
     }
 
@@ -336,6 +343,16 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     guestCheckboxes.forEach(checkbox => {
         checkbox.addEventListener('change', updatePricing);
+    });
+
+    // Add event listener for form submission
+    document.getElementById('reservationForm').addEventListener('submit', function(e) {
+        console.log('Form submission - Meal type ID value:', mealTypeIdInput.value);
+        console.log('Form submission - Meal type display value:', mealTypeDisplay.value);
+        if (!mealTypeIdInput.value) {
+            e.preventDefault();
+            alert('Please select a valid time slot to determine the meal type.');
+        }
     });
 });
 </script>

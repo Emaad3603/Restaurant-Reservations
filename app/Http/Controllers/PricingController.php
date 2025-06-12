@@ -69,7 +69,35 @@ class PricingController extends Controller
                     });
                 })
                 ->orderBy('time')
-                ->get(['time', 'meal_type', 'price']);
+                ->get(['time', 'meal_type', 'price', 'per_person']);
+
+            // Get meal type IDs for each time slot
+            $timeSlots = $timeSlots->map(function($slot) use ($hotelId) {
+                $hotel = Hotel::find($hotelId);
+                
+                // Find the meal type using the label from restaurant_pricing_times
+                $mealType = \App\Models\MealType::where('label', $slot->meal_type)
+                    ->where('company_id', $hotel->company_id)
+                    ->first();
+                    
+                if (!$mealType) {
+                    \Log::warning('Meal type not found', [
+                        'label' => $slot->meal_type,
+                        'company_id' => $hotel->company_id
+                    ]);
+                }
+                
+                $slot->meal_type_id = $mealType ? $mealType->meal_types_id : null;
+                
+                \Log::info('Meal type lookup', [
+                    'label' => $slot->meal_type,
+                    'company_id' => $hotel->company_id,
+                    'found_meal_type' => $mealType ? $mealType->toArray() : null,
+                    'final_meal_type_id' => $slot->meal_type_id
+                ]);
+                
+                return $slot;
+            });
                 
             \Log::info('Time slots found', [
                 'count' => $timeSlots->count(),

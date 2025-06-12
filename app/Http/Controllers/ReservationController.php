@@ -50,14 +50,8 @@ class ReservationController extends Controller
 
         // Check verification type
         if ($hotel->verification_type == 0) {
-            // Validate using birthdate in guest_details
-            $hasBirthdate = DB::table('guest_details')
-                ->where('guest_reservations_id', $guestReservation->guest_reservations_id)
-                ->whereNotNull('birth_date')
-                ->where('birth_date', '!=', '')
-                ->exists();
-            if (!$hasBirthdate) {
-                return back()->withErrors(['date' => 'Birthdate is required for verification.']);
+            if (!session('guest_name')) {
+                return redirect()->route('guest.create')->with('error', 'Please verify your birthdate.');
             }
         } else if ($hotel->verification_type == 1) {
             // Validate using departure_date
