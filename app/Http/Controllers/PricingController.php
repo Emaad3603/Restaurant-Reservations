@@ -56,7 +56,7 @@ class PricingController extends Controller
             
             // Get time slots for the specific date
             $timeSlots = RestaurantPricingTime::where('restaurant_id', $restaurantId)
-                ->where('hotel_id', $hotelId)
+                //->where('hotel_id', $hotelId)
                 ->where(function($query) use ($date) {
                     $query->where(function($q) use ($date) {
                         $q->where('year', (string)$date->year)

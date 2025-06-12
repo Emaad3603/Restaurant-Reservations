@@ -26,7 +26,7 @@ class GuestController extends Controller
         // Find the guest reservation for this room
         $guestReservation = GuestReservation::where('hotel_id', session('hotel_id'))
             ->where('room_number', session('room_number'))
-            ->where('status', 'checked_in')
+           // ->where('status', 'checked_in')
             ->first();
             
         if (!$guestReservation) {
